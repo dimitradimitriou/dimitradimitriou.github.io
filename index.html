@@ -318,7 +318,7 @@
   </div>
 
   <div id="footer">
-    <div id="scroll-hint">Scroll to explore</div>
+    <div id="scroll-hint">Scroll or click to explore</div>
     <div id="freq-display" id="freq">432 Hz — Frequency</div>
   </div>
 </div>
@@ -618,6 +618,20 @@ document.querySelectorAll('#nav a, .proj-item').forEach(a => {
 setTimeout(() => {
   document.getElementById('scroll-hint').style.animationPlayState = 'running';
 }, 3500);
+
+// ── SCROLL / SWIPE TO ENTER WORK ────────────────────────────────
+let scrollLocked = true;
+setTimeout(() => { scrollLocked = false; }, 2500);
+
+window.addEventListener('wheel', e => {
+  if (!scrollLocked && e.deltaY > 30) location.href = 'work-3.html';
+}, { passive: true });
+
+let touchStartY = 0;
+window.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+window.addEventListener('touchend', e => {
+  if (!scrollLocked && touchStartY - e.changedTouches[0].clientY > 50) location.href = 'work-3.html';
+}, { passive: true });
 </script>
 </body>
 </html>
