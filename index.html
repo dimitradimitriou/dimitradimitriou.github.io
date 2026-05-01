@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dimitra Dimitriou — Multidisciplinary Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Neue+Haas+Grotesk+Display+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --green: #1a3a2a;
+    --green-mid: #2d5c42;
+    --green-light: #4a8c64;
+    --beige: #e8e0d0;
+    --beige-dim: #c4b99a;
+    --gold: #c8a96e;
+    --signal: #7ecba1;
+    --bg: #0a0f0d;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    cursor: none;
+  }
+
+  canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+
+  /* Custom cursor */
+  #cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--signal);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1000;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: screen;
+  }
+
+  #cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(126, 203, 161, 0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 999;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease, border-color 0.4s;
+  }
+
+  /* UI overlay */
+  #ui {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 3rem 3.5rem;
+  }
+
+  #header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  #logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.25em;
+    color: var(--beige-dim);
+    text-transform: uppercase;
+    opacity: 0;
+  }
+
+  #nav {
+    display: flex;
+    gap: 2.5rem;
+    opacity: 0;
+  }
+
+  #nav a {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    color: var(--beige-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    pointer-events: all;
+    transition: color 0.3s;
+  }
+
+  #nav a:hover { color: var(--signal); }
+
+  #center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 100%;
+  }
+
+  #signal-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--signal);
+    text-transform: uppercase;
+    opacity: 0;
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+
+  #name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 300;
+    color: var(--beige);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    opacity: 0;
+    display: block;
+  }
+
+  #name em {
+    font-style: italic;
+    color: var(--signal);
+  }
+
+  #discipline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--beige-dim);
+    letter-spacing: 0.15em;
+    opacity: 0;
+    display: block;
+    margin-top: 1.2rem;
+  }
+
+  #waveform-label {
+    position: absolute;
+    bottom: -4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: rgba(126, 203, 161, 0.4);
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+  }
+
+  #footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  #scroll-hint {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: rgba(196, 185, 154, 0.4);
+    text-transform: uppercase;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  #scroll-hint::before {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 1px;
+    background: rgba(126, 203, 161, 0.4);
+  }
+
+  #freq-display {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: rgba(126, 203, 161, 0.35);
+    opacity: 0;
+    font-style: italic;
+  }
+
+  /* Project pills */
+  #projects {
+    position: fixed;
+    right: 3.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    opacity: 0;
+  }
+
+  .proj-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    pointer-events: all;
+    group: true;
+  }
+
+  .proj-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: rgba(126, 203, 161, 0.4);
+    transition: background 0.3s, transform 0.3s;
+    flex-shrink: 0;
+  }
+
+  .proj-item:hover .proj-dot {
+    background: var(--signal);
+    transform: scale(1.8);
+  }
+
+  .proj-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: rgba(196, 185, 154, 0.4);
+    text-transform: uppercase;
+    transition: color 0.3s;
+    white-space: nowrap;
+  }
+
+  .proj-item:hover .proj-name {
+    color: var(--beige-dim);
+  }
+
+  /* Noise overlay */
+  #noise {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px;
+  }
+
+  /* Glitch line */
+  #glitch-line {
+    position: fixed;
+    left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--signal), transparent);
+    opacity: 0;
+    z-index: 6;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div id="noise"></div>
+<div id="glitch-line"></div>
+<canvas id="canvas"></canvas>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<div id="ui">
+  <div id="header">
+    <div id="logo">Dimitra Dimitriou</div>
+    <nav id="nav">
+      <a href="#">Work</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+  </div>
+
+  <div id="center">
+    <span id="signal-label">Multidisciplinary Designer</span>
+    <span id="name">Dimitra<br><em>Dimitriou</em></span>
+    <span id="discipline">turning the invisible into the experiential</span>
+    <span id="waveform-label">— signal active —</span>
+  </div>
+
+  <div id="footer">
+    <div id="scroll-hint">Scroll to explore</div>
+    <div id="freq-display" id="freq">432 Hz — Frequency</div>
+  </div>
+</div>
+
+<div id="projects">
+  <div class="proj-item"><div class="proj-dot"></div><span class="proj-name">01 Signals</span></div>
+  <div class="proj-item"><div class="proj-dot"></div><span class="proj-name">02 UX / UI</span></div>
+  <div class="proj-item"><div class="proj-dot"></div><span class="proj-name">03 Bombsite</span></div>
+  <div class="proj-item"><div class="proj-dot"></div><span class="proj-name">04 Raw Cane</span></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+// ── THREE.JS SCENE ──────────────────────────────────────────────
+const canvas = document.getElementById('canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x0a0f0d, 1);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 5;
+
+// Mouse tracking
+const mouse = { x: 0, y: 0, px: 0, py: 0 };
+window.addEventListener('mousemove', e => {
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+});
+
+// ── PARTICLES ────────────────────────────────────────────────────
+const particleCount = 1800;
+const positions = new Float32Array(particleCount * 3);
+const pSpeeds = new Float32Array(particleCount);
+const pPhases = new Float32Array(particleCount);
+
+for (let i = 0; i < particleCount; i++) {
+  positions[i * 3]     = (Math.random() - 0.5) * 20;
+  positions[i * 3 + 1] = (Math.random() - 0.5) * 12;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 10 - 2;
+  pSpeeds[i]  = 0.0003 + Math.random() * 0.0008;
+  pPhases[i]  = Math.random() * Math.PI * 2;
+}
+
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const pMat = new THREE.PointsMaterial({
+  color: 0x4a8c64,
+  size: 0.025,
+  transparent: true,
+  opacity: 0.55,
+  sizeAttenuation: true
+});
+const particles = new THREE.Points(pGeo, pMat);
+scene.add(particles);
+
+// ── WAVEFORM LINES ───────────────────────────────────────────────
+const waveLines = [];
+const waveCount = 7;
+const wavePoints = 180;
+
+for (let w = 0; w < waveCount; w++) {
+  const geo = new THREE.BufferGeometry();
+  const pts = new Float32Array(wavePoints * 3);
+  geo.setAttribute('position', new THREE.BufferAttribute(pts, 3));
+
+  const alpha = 0.06 + (w / waveCount) * 0.18;
+  const green = w % 2 === 0 ? 0x2d5c42 : 0x7ecba1;
+  const mat = new THREE.LineBasicMaterial({
+    color: green,
+    transparent: true,
+    opacity: alpha
+  });
+
+  const line = new THREE.Line(geo, mat);
+  line.userData = {
+    yOffset: (w - waveCount / 2) * 0.38,
+    freq: 0.8 + w * 0.35,
+    amp: 0.08 + w * 0.045,
+    speed: 0.4 + w * 0.12,
+    phase: w * 0.6
+  };
+  scene.add(line);
+  waveLines.push(line);
+}
+
+// ── CENTRAL SIGNAL RING ─────────────────────────────────────────
+const ringGeo = new THREE.RingGeometry(1.35, 1.37, 128);
+const ringMat = new THREE.MeshBasicMaterial({
+  color: 0x2d5c42,
+  transparent: true,
+  opacity: 0.15,
+  side: THREE.DoubleSide
+});
+const ring = new THREE.Mesh(ringGeo, ringMat);
+scene.add(ring);
+
+const ring2Geo = new THREE.RingGeometry(1.7, 1.71, 128);
+const ring2Mat = new THREE.MeshBasicMaterial({
+  color: 0x4a8c64,
+  transparent: true,
+  opacity: 0.07,
+  side: THREE.DoubleSide
+});
+const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
+scene.add(ring2);
+
+// ── ORBITING DOTS ───────────────────────────────────────────────
+const orbitDots = [];
+const orbitData = [
+  { radius: 1.36, speed: 0.004, size: 0.025, color: 0x7ecba1, opacity: 0.9 },
+  { radius: 1.36, speed: 0.004, size: 0.015, color: 0x7ecba1, opacity: 0.5, offset: Math.PI },
+  { radius: 1.71, speed: -0.003, size: 0.018, color: 0x4a8c64, opacity: 0.7 },
+  { radius: 1.71, speed: -0.003, size: 0.012, color: 0x4a8c64, opacity: 0.4, offset: Math.PI * 0.5 },
+];
+
+orbitData.forEach(d => {
+  const g = new THREE.SphereGeometry(d.size, 8, 8);
+  const m = new THREE.MeshBasicMaterial({ color: d.color, transparent: true, opacity: d.opacity });
+  const mesh = new THREE.Mesh(g, m);
+  mesh.userData = { ...d, angle: d.offset || 0 };
+  scene.add(mesh);
+  orbitDots.push(mesh);
+});
+
+// ── CURSOR RIPPLE ───────────────────────────────────────────────
+const ripples = [];
+function createRipple(x, y) {
+  const geo = new THREE.RingGeometry(0.01, 0.02, 32);
+  const mat = new THREE.MeshBasicMaterial({
+    color: 0x7ecba1, transparent: true, opacity: 0.6, side: THREE.DoubleSide
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  // convert screen to world
+  const vec = new THREE.Vector3(x, y, 0.5);
+  vec.unproject(camera);
+  const dir = vec.sub(camera.position).normalize();
+  const dist = -camera.position.z / dir.z;
+  const pos = camera.position.clone().add(dir.multiplyScalar(dist));
+  mesh.position.copy(pos);
+  mesh.userData = { life: 1, born: Date.now() };
+  scene.add(mesh);
+  ripples.push(mesh);
+}
+
+let lastRipple = 0;
+window.addEventListener('mousemove', e => {
+  const now = Date.now();
+  if (now - lastRipple > 80) {
+    lastRipple = now;
+    const x = (e.clientX / window.innerWidth) * 2 - 1;
+    const y = -(e.clientY / window.innerHeight) * 2 + 1;
+    createRipple(x, y);
+  }
+});
+
+// ── ANIMATION LOOP ───────────────────────────────────────────────
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.01;
+
+  // Smooth camera drift following mouse
+  camera.position.x += (mouse.x * 0.3 - camera.position.x) * 0.04;
+  camera.position.y += (mouse.y * 0.15 - camera.position.y) * 0.04;
+  camera.lookAt(scene.position);
+
+  // Animate waveforms
+  waveLines.forEach(line => {
+    const d = line.userData;
+    const pos = line.geometry.attributes.position;
+    for (let i = 0; i < wavePoints; i++) {
+      const x = (i / (wavePoints - 1) - 0.5) * 16;
+      const mouseDist = Math.abs(x - mouse.x * 8);
+      const mouseInfluence = Math.max(0, 1 - mouseDist / 3) * 0.25;
+      const y = d.yOffset
+        + Math.sin(x * d.freq + t * d.speed + d.phase) * (d.amp + mouseInfluence)
+        + Math.sin(x * d.freq * 0.5 + t * d.speed * 0.7) * d.amp * 0.4;
+      pos.setXYZ(i, x, y, 0);
+    }
+    pos.needsUpdate = true;
+  });
+
+  // Animate particles
+  const pPos = particles.geometry.attributes.position;
+  for (let i = 0; i < particleCount; i++) {
+    pPos.array[i * 3 + 1] += pSpeeds[i];
+    pPos.array[i * 3] += Math.sin(t + pPhases[i]) * 0.0005;
+    if (pPos.array[i * 3 + 1] > 7) pPos.array[i * 3 + 1] = -7;
+  }
+  pPos.needsUpdate = true;
+
+  // Animate rings
+  ring.rotation.z += 0.0008;
+  ring2.rotation.z -= 0.0005;
+  ring.material.opacity = 0.1 + Math.sin(t * 0.5) * 0.05;
+  ring2.material.opacity = 0.05 + Math.sin(t * 0.3 + 1) * 0.03;
+
+  // Orbit dots
+  orbitDots.forEach(dot => {
+    dot.userData.angle += dot.userData.speed;
+    dot.position.x = Math.cos(dot.userData.angle) * dot.userData.radius;
+    dot.position.y = Math.sin(dot.userData.angle) * dot.userData.radius;
+  });
+
+  // Ripples
+  for (let i = ripples.length - 1; i >= 0; i--) {
+    const r = ripples[i];
+    const age = (Date.now() - r.userData.born) / 600;
+    if (age > 1) {
+      scene.remove(r);
+      ripples.splice(i, 1);
+    } else {
+      const s = 1 + age * 3;
+      r.scale.set(s, s, 1);
+      r.material.opacity = 0.5 * (1 - age);
+    }
+  }
+
+  renderer.render(scene, camera);
+}
+animate();
+
+// ── RESIZE ───────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ── CUSTOM CURSOR ────────────────────────────────────────────────
+const cursorDot  = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+let cx = 0, cy = 0, rx = 0, ry = 0;
+
+window.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
+
+(function cursorLoop() {
+  requestAnimationFrame(cursorLoop);
+  rx += (cx - rx) * 0.12;
+  ry += (cy - ry) * 0.12;
+  cursorDot.style.left  = cx + 'px';
+  cursorDot.style.top   = cy + 'px';
+  cursorRing.style.left = rx + 'px';
+  cursorRing.style.top  = ry + 'px';
+})();
+
+// ── GLITCH LINE ──────────────────────────────────────────────────
+const glitch = document.getElementById('glitch-line');
+function fireGlitch() {
+  const y = Math.random() * window.innerHeight;
+  glitch.style.top = y + 'px';
+  gsap.fromTo(glitch, { opacity: 0.6, scaleX: 0 }, {
+    opacity: 0, scaleX: 1, duration: 0.3 + Math.random() * 0.4,
+    transformOrigin: 'left center', ease: 'power2.out'
+  });
+  setTimeout(fireGlitch, 2000 + Math.random() * 4000);
+}
+setTimeout(fireGlitch, 3000);
+
+// ── GSAP INTRO SEQUENCE ──────────────────────────────────────────
+const tl = gsap.timeline({ delay: 0.4 });
+
+tl.to('#signal-label', { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }, 0)
+  .fromTo('#name', { opacity: 0, y: 30, filter: 'blur(12px)' },
+    { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.8, ease: 'power3.out' }, 0.5)
+  .to('#discipline', { opacity: 1, duration: 1.4, ease: 'power2.out' }, 1.4)
+  .to('#waveform-label', { opacity: 1, duration: 1, ease: 'power2.out' }, 2)
+  .to('#logo',  { opacity: 1, duration: 1, ease: 'power2.out' }, 0.8)
+  .to('#nav',   { opacity: 1, duration: 1, ease: 'power2.out' }, 1.0)
+  .to('#scroll-hint', { opacity: 1, duration: 1, ease: 'power2.out' }, 2.2)
+  .to('#freq-display', { opacity: 1, duration: 1, ease: 'power2.out' }, 2.4)
+  .to('#projects', { opacity: 1, duration: 1.2, ease: 'power2.out' }, 1.8);
+
+// Freq counter animation
+const freqEl = document.getElementById('freq-display');
+let freqVal = 0;
+gsap.to({ v: 0 }, {
+  v: 432, duration: 2.5, delay: 2.4, ease: 'power2.out',
+  onUpdate: function() { freqEl.textContent = Math.round(this.targets()[0].v) + ' Hz — Frequency'; }
+});
+
+// Pulsing signal label
+gsap.to('#signal-label', {
+  opacity: 0.4, duration: 1.8, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 3
+});
+
+// Hover on nav links
+document.querySelectorAll('#nav a').forEach(a => {
+  a.addEventListener('mouseenter', () => {
+    cursorDot.style.width = '14px';
+    cursorDot.style.height = '14px';
+    cursorRing.style.width = '52px';
+    cursorRing.style.height = '52px';
+    cursorRing.style.borderColor = 'rgba(126,203,161,0.8)';
+  });
+  a.addEventListener('mouseleave', () => {
+    cursorDot.style.width = '8px';
+    cursorDot.style.height = '8px';
+    cursorRing.style.width = '36px';
+    cursorRing.style.height = '36px';
+    cursorRing.style.borderColor = 'rgba(126,203,161,0.4)';
+  });
+});
+</script>
+</body>
+</html>
