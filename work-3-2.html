@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dimitra Dimitriou — Work</title>
+
+<!-- Switzer via Fontshare CDN -->
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,300,500&display=swap" rel="stylesheet">
+<!-- Ciclo Display via Fontshare CDN -->
+<link href="https://api.fontshare.com/v2/css?f[]=ciclo@400,700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --beige:#e8e0d0;
+  --beige-dim:#c4b99a;
+  --bg:#0a0f0d;
+  --signal:#7ecba1;
+  --sig-bg:#071210;--sig-glow:#7ecba1;--sig-mid:#2d5c42;
+  --bomb-bg:#0b0810;--bomb-glow:#c77dff;
+  --cane-bg:#0f0800;--cane-glow:#e9a84c;
+  --marco-bg:#0c0c0c;--marco-glow:#d4d0c8;
+  --font-display:'Ciclo',Georgia,serif;
+  --font-body:'Switzer',system-ui,sans-serif;
+}
+html{scroll-behavior:auto;}
+body{
+  background:var(--bg);
+  color:var(--beige);
+  font-family:var(--font-body);
+  font-weight:300;
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ── CURSOR ── */
+#cursor-dot{
+  position:fixed;width:6px;height:6px;
+  background:var(--signal);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  mix-blend-mode:screen;
+}
+#cursor-ring{
+  position:fixed;width:32px;height:32px;
+  border:1px solid rgba(126,203,161,.35);border-radius:50%;
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:width .28s,height .28s,border-color .3s;
+}
+#cursor-ring.grow{width:54px;height:54px;border-color:rgba(126,203,161,.65);}
+
+/* ── CHROME ── */
+#back-nav{
+  position:fixed;top:2.2rem;left:2.8rem;z-index:200;
+  font-family:var(--font-body);font-size:11px;font-weight:400;
+  letter-spacing:.12em;color:rgba(232,228,220,.28);
+  text-decoration:none;text-transform:uppercase;
+  transition:color .3s;cursor:none;
+}
+#back-nav:hover{color:var(--beige-dim);}
+
+#sect-label{
+  position:fixed;bottom:2rem;right:2.8rem;z-index:200;
+  font-family:var(--font-body);font-size:10px;font-weight:300;
+  letter-spacing:.18em;color:rgba(232,228,220,.26);text-transform:uppercase;
+}
+#side-dots{
+  position:fixed;left:2.8rem;top:50%;
+  transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:13px;z-index:200;
+}
+.sdot{
+  width:4px;height:4px;border-radius:50%;
+  background:rgba(232,228,220,.14);
+  transition:background .4s,transform .4s;
+}
+.sdot.on{background:var(--signal);transform:scale(2);}
+
+/* ── INTRO ── */
+#intro{
+  position:relative;height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;overflow:hidden;
+}
+#intro canvas{position:absolute;inset:0;width:100%;height:100%;}
+.intro-inner{position:relative;z-index:2;text-align:center;}
+
+.intro-eyebrow{
+  font-family:var(--font-body);font-size:10px;font-weight:400;
+  letter-spacing:.28em;color:rgba(126,203,161,.45);
+  text-transform:uppercase;margin-bottom:2.2rem;
+}
+.intro-hl{
+  font-family:var(--font-display);
+  font-size:clamp(2.8rem,6vw,5.4rem);
+  font-weight:400;line-height:1.08;
+  color:var(--beige);
+}
+.intro-sub{
+  margin-top:1.8rem;
+  font-family:var(--font-body);font-size:.9rem;font-weight:300;
+  color:rgba(232,228,220,.35);letter-spacing:.08em;
+}
+.scroll-cue{
+  margin-top:3.5rem;
+  font-family:var(--font-body);font-size:10px;font-weight:300;
+  letter-spacing:.2em;color:rgba(232,228,220,.18);
+  text-transform:uppercase;
+  animation:breathe 2.8s ease-in-out infinite;
+}
+@keyframes breathe{0%,100%{opacity:.18;}50%{opacity:.6;}}
+
+/* ── PROJECT SECTIONS ── */
+.ps{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;}
+.ps canvas.bg{position:absolute;inset:0;width:100%;height:100%;}
+.membrane{position:absolute;inset:0;z-index:8;pointer-events:none;opacity:0;}
+
+.pc{position:relative;z-index:10;max-width:560px;padding:5rem 4rem 5rem 9rem;}
+
+.pnum{
+  font-family:var(--font-body);font-size:10px;font-weight:400;
+  letter-spacing:.26em;text-transform:uppercase;opacity:.35;margin-bottom:1.9rem;
+}
+.ptitle{
+  font-family:var(--font-display);
+  font-size:clamp(3rem,5.2vw,4.6rem);
+  font-weight:400;line-height:1.02;margin-bottom:1.5rem;
+}
+.ptags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:1.7rem;}
+.ptag{
+  font-family:var(--font-body);font-size:8px;font-weight:400;
+  letter-spacing:.2em;text-transform:uppercase;
+  padding:4px 11px;border:1px solid currentColor;opacity:.65;
+}
+.pdesc{
+  font-family:var(--font-body);font-size:1rem;font-weight:300;
+  line-height:1.9;color:rgba(232,228,220,.55);max-width:420px;margin-bottom:1.5rem;
+}
+.pyear{
+  font-family:var(--font-body);font-size:9px;font-weight:300;
+  letter-spacing:.18em;color:rgba(232,228,220,.24);
+  text-transform:uppercase;margin-bottom:2.2rem;
+}
+.plink{
+  font-family:var(--font-body);font-size:10px;font-weight:400;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:inherit;text-decoration:none;
+  border-bottom:1px solid currentColor;padding-bottom:2px;
+  opacity:.52;transition:opacity .3s;cursor:none;
+}
+.plink:hover{opacity:1;}
+.reveal{opacity:0;transform:translateY(28px);}
+
+/* ── SIGNALS ── */
+#signals{background:var(--sig-bg);color:#b7e4c7;}
+#signals .ptitle{color:var(--sig-glow);}
+#signals .ptag{color:#7ecba1;}
+
+/* ── BOMBSITE ── */
+#bombsite{background:var(--bomb-bg);color:#dbb8ff;}
+#bombsite .ptitle{color:var(--bomb-glow);}
+#bombsite .ptag{color:#c77dff;}
+.glitch{position:relative;display:inline-block;}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;}
+.glitch::before{color:#ff006e;clip-path:polygon(0 18%,100% 18%,100% 38%,0 38%);animation:ga 4s steps(1) infinite;}
+.glitch::after{color:#00f5d4;clip-path:polygon(0 58%,100% 58%,100% 78%,0 78%);animation:gb 4s steps(1) infinite;}
+@keyframes ga{0%,82%,84%,100%{transform:none;opacity:0;}83%{transform:skewX(-14deg) translateX(-5px);opacity:.55;}}
+@keyframes gb{0%,82%,85%,100%{transform:none;opacity:0;}84%{transform:skewX(9deg) translateX(5px);opacity:.55;}}
+
+/* ── RAW CANE ── */
+#rawcane{background:var(--cane-bg);color:#f4c06a;}
+#rawcane .ptitle{color:var(--cane-glow);}
+#rawcane .ptag{color:#e9a84c;}
+#syrup-wrap{position:absolute;right:0;top:0;bottom:0;width:55%;overflow:hidden;z-index:1;}
+#syrup-wrap canvas{position:absolute;inset:0;width:100%;height:100%;}
+
+/* ── MARCO ── */
+#marco{background:var(--marco-bg);color:#c8c8c8;}
+#marco .ptitle{color:var(--marco-glow);}
+#marco .ptag{color:#c8c8c8;}
+.mgrid{position:absolute;inset:0;z-index:1;display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(8,1fr);opacity:.04;pointer-events:none;}
+.mgrid div{border:.5px solid #c8c8c8;}
+
+/* ── OUTRO ── */
+#outro{
+  min-height:55vh;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;text-align:center;padding:5rem 2rem;
+}
+.outro-eye{
+  font-family:var(--font-body);font-size:10px;font-weight:400;
+  letter-spacing:.24em;text-transform:uppercase;
+  color:rgba(126,203,161,.28);margin-bottom:2.2rem;
+}
+.outro-hl{
+  font-family:var(--font-display);
+  font-size:clamp(1.4rem,3.2vw,2.5rem);
+  font-weight:400;
+  color:rgba(232,228,220,.48);line-height:1.4;
+  max-width:580px;margin-bottom:3.2rem;
+}
+.cta{
+  font-family:var(--font-body);font-size:10px;font-weight:400;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(232,228,220,.45);text-decoration:none;
+  border:1px solid rgba(232,228,220,.15);padding:14px 32px;
+  transition:all .3s;cursor:none;
+}
+.cta:hover{color:var(--beige);border-color:rgba(232,228,220,.48);background:rgba(232,228,220,.04);}
+
+/* grain */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:500;opacity:.026;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px;
+}
+</style>
+</head>
+<body>
+
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<a href="index.html" id="back-nav">← Dimitra Dimitriou</a>
+<div id="sect-label"></div>
+<div id="side-dots">
+  <div class="sdot"></div><div class="sdot"></div>
+  <div class="sdot"></div><div class="sdot"></div>
+</div>
+
+<!-- INTRO -->
+<section id="intro">
+  <canvas id="intro-c"></canvas>
+  <div class="intro-inner">
+    <p class="intro-eyebrow">Selected works — 2021 – 2026</p>
+    <h1 class="intro-hl">The invisible,<br>made experiential.</h1>
+    <p class="intro-sub">Scroll to enter each world</p>
+    <p class="scroll-cue">↓ scroll</p>
+  </div>
+</section>
+
+<!-- 01 SIGNALS -->
+<section class="ps" id="signals">
+  <canvas class="bg" id="sig-c"></canvas>
+  <div class="membrane" id="mem-sig"></div>
+  <div class="pc">
+    <p class="pnum reveal">01</p>
+    <h2 class="ptitle reveal">Signals</h2>
+    <div class="ptags reveal">
+      <span class="ptag">Brand Identity</span><span class="ptag">Packaging</span>
+      <span class="ptag">Motion</span><span class="ptag">Spatial Experience</span>
+    </div>
+    <p class="pdesc reveal">A speculative multisensory fragrance system that translates scent into visual and motion based design. The visual language is mathematically derived from EEG data — mapping scent profiles to their corresponding neural signatures. Scent is not described, but expressed through colour, form, and behaviour across physical, digital and spatial layers.</p>
+    <p class="pyear reveal">2025 — 2026</p>
+    <a href="#" class="plink reveal">View project →</a>
+  </div>
+</section>
+
+<!-- 02 BOMBSITE -->
+<section class="ps" id="bombsite">
+  <canvas class="bg" id="bomb-c"></canvas>
+  <div class="membrane" id="mem-bomb"></div>
+  <div class="pc">
+    <p class="pnum reveal">02</p>
+    <h2 class="ptitle reveal"><span class="glitch" data-text="Bombsite">Bombsite</span></h2>
+    <div class="ptags reveal">
+      <span class="ptag">Print Media</span><span class="ptag">Motion Graphics</span>
+      <span class="ptag">Sensory Mapping</span>
+    </div>
+    <p class="pdesc reveal">An exploration of a World War II bombing in Hackney, London — translating historical context into a sensory system through motion, sound, and typography. A dual-mapping system of olfactory incidents and conversational geometries captures the invisible, lived character of a site where past and present collapse into one another.</p>
+    <p class="pyear reveal">2023 — 2024</p>
+    <a href="#" class="plink reveal">View project →</a>
+  </div>
+</section>
+
+<!-- 03 RAW CANE -->
+<section class="ps" id="rawcane">
+  <div id="syrup-wrap"><canvas id="syrup-c"></canvas></div>
+  <div class="membrane" id="mem-cane"></div>
+  <div class="pc">
+    <p class="pnum reveal">03</p>
+    <h2 class="ptitle reveal">Raw Cane</h2>
+    <div class="ptags reveal">
+      <span class="ptag">Branding Design</span><span class="ptag">Product Design</span>
+      <span class="ptag">Experience Design</span><span class="ptag">Spatial Design</span>
+    </div>
+    <p class="pdesc reveal">Sugar syrup reimagined as an interactive material — transforming a passive ingredient into a tactile, participatory experience. Rooted in the contrast between control and indulgence, the system extends from packaging into public installations, reconnecting users with the origin of sugar through material behaviour and collective engagement.</p>
+    <p class="pyear reveal">2025 — 2026</p>
+    <a href="#" class="plink reveal">View project →</a>
+  </div>
+</section>
+
+<!-- 04 MARCO -->
+<section class="ps" id="marco">
+  <div class="mgrid" id="mgrid"></div>
+  <canvas class="bg" id="marco-c"></canvas>
+  <div class="membrane" id="mem-marco"></div>
+  <div class="pc">
+    <p class="pnum reveal">04</p>
+    <h2 class="ptitle reveal">Marco Berta</h2>
+    <div class="ptags reveal">
+      <span class="ptag">UX / UI Design</span><span class="ptag">Web Design</span>
+      <span class="ptag">Product Design</span>
+    </div>
+    <p class="pdesc reveal">Redesign of a personal training website for a high performance clientele — athletes, high profile individuals, and injury rehabilitation cases. A minimal, structured interface built to align digital experience with the quality and credibility of an exceptional in-person service.</p>
+    <p class="pyear reveal">2021</p>
+    <a href="https://www.marcoberta.com" class="plink reveal" target="_blank">View live site →</a>
+  </div>
+</section>
+
+<!-- OUTRO -->
+<section id="outro">
+  <p class="outro-eye">End of transmission</p>
+  <p class="outro-hl">"I translate complex, intangible inputs<br>into experiences that people can feel."</p>
+  <a href="mailto:dimitrad312@gmail.com" class="cta">Get in touch</a>
+</section>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ── CURSOR ── */
+const dot=document.getElementById('cursor-dot');
+const ring=document.getElementById('cursor-ring');
+let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function tick(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;dot.style.left=mx+'px';dot.style.top=my+'px';ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(tick);})();
+document.querySelectorAll('a,button').forEach(el=>{el.addEventListener('mouseenter',()=>ring.classList.add('grow'));el.addEventListener('mouseleave',()=>ring.classList.remove('grow'));});
+
+/* ── SIDE DOTS + LABEL ── */
+const sdots=document.querySelectorAll('.sdot');
+const lbl=document.getElementById('sect-label');
+const sids=['signals','bombsite','rawcane','marco'];
+const snames=['01 — Signals','02 — Bombsite','03 — Raw Cane','04 — Marco Berta'];
+sids.forEach((id,i)=>{ScrollTrigger.create({trigger:'#'+id,start:'top center',end:'bottom center',onEnter:()=>setDot(i),onEnterBack:()=>setDot(i)});});
+ScrollTrigger.create({trigger:'#intro',start:'top center',end:'bottom center',onEnter:()=>clearDot(),onEnterBack:()=>clearDot()});
+function setDot(i){sdots.forEach((d,j)=>d.classList.toggle('on',j===i));lbl.textContent=snames[i];}
+function clearDot(){sdots.forEach(d=>d.classList.remove('on'));lbl.textContent='';}
+
+/* ── REVEALS ── */
+document.querySelectorAll('.reveal').forEach(el=>{
+  const sec=el.closest('.ps');if(!sec)return;
+  const idx=Array.from(sec.querySelectorAll('.reveal')).indexOf(el);
+  gsap.fromTo(el,{opacity:0,y:36},{opacity:1,y:0,duration:.95,delay:idx*.08,ease:'power3.out',
+    scrollTrigger:{trigger:sec,start:'top 62%',toggleActions:'play none none reverse'}});
+});
+
+/* ── MEMBRANES ── */
+['sig','bomb','cane','marco'].forEach(k=>{
+  const m=document.getElementById('mem-'+k);
+  ScrollTrigger.create({trigger:m.closest('.ps'),start:'top bottom',end:'top 55%',
+    onUpdate:self=>{const p=self.progress;m.style.opacity=p<.5?p*1.5:(1-p)*1.5;}});
+});
+
+/* ── INTRO PARALLAX ── */
+ScrollTrigger.create({trigger:'#intro',start:'top top',end:'bottom top',
+  onUpdate:self=>{const t=document.querySelector('.intro-inner');t.style.transform=`translateY(${self.progress*55}px)`;t.style.opacity=1-self.progress*1.5;}});
+
+/* ══════════════════════════════════
+   INTRO CANVAS — EEG wavefields
+══════════════════════════════════ */
+(()=>{
+  const c=document.getElementById('intro-c');
+  const ctx=c.getContext('2d');
+  let W,H;
+  const rsz=()=>{W=c.width=innerWidth;H=c.height=innerHeight;};
+  rsz();addEventListener('resize',rsz);
+  let t=0;
+  (function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let l=0;l<14;l++){
+      const y0=H*.28+l*(H*.48/14);
+      const amp=14+l*4.5,freq=.007+l*.0014,spd=.35+l*.07,alpha=.03+(14-l)*.016;
+      ctx.beginPath();ctx.strokeStyle=`rgba(126,203,161,${alpha})`;ctx.lineWidth=.7;
+      for(let x=0;x<=W;x+=2){
+        const y=y0+Math.sin(x*freq+t*spd)*amp+Math.sin(x*freq*2.4+t*spd*.65)*(amp*.38)+Math.sin(x*freq*.5+t*spd*1.3)*(amp*.2);
+        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    t+=.016;requestAnimationFrame(draw);
+  })();
+})();
+
+/* ══════════════════════════════════
+   SIGNALS CANVAS — Three.js EEG
+══════════════════════════════════ */
+(()=>{
+  const canvas=document.getElementById('sig-c');
+  const rdr=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  rdr.setPixelRatio(Math.min(devicePixelRatio,2));
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(58,1,.1,1000);
+  cam.position.set(0,0,6);
+  const rsz=()=>{const W=canvas.parentElement.offsetWidth,H=canvas.parentElement.offsetHeight;rdr.setSize(W,H);cam.aspect=W/H;cam.updateProjectionMatrix();};
+  rsz();addEventListener('resize',rsz);
+  const wps=[
+    {freq:1.8,amp:.12,spd:.9,col:0x7ecba1,op:.55},
+    {freq:1.1,amp:.2,spd:.6,col:0x52b788,op:.5},
+    {freq:.7,amp:.3,spd:.42,col:0x40916c,op:.45},
+    {freq:.45,amp:.42,spd:.28,col:0x2d6a4f,op:.4},
+    {freq:.2,amp:.55,spd:.15,col:0x1b4332,op:.35},
+  ];
+  const waves=[];
+  wps.forEach((p,wi)=>{
+    for(let row=0;row<3;row++){
+      const pts=[];for(let i=0;i<=240;i++)pts.push(new THREE.Vector3((i/240)*16-8,0,0));
+      const geo=new THREE.BufferGeometry().setFromPoints(pts);
+      const mat=new THREE.LineBasicMaterial({color:p.col,transparent:true,opacity:Math.max(.05,p.op-row*.08)});
+      const line=new THREE.Line(geo,mat);
+      line.position.y=(wi-2)*1.1+(row-.5)*.3;
+      line.userData={...p,phase:Math.random()*Math.PI*2};
+      scene.add(line);waves.push(line);
+    }
+  });
+  let t=0;
+  (function anim(){
+    requestAnimationFrame(anim);t+=.008;
+    waves.forEach(l=>{
+      const d=l.userData,pos=l.geometry.attributes.position;
+      for(let i=0;i<=240;i++){const x=(i/240)*16-8;pos.setY(i,Math.sin(x*d.freq+t*d.spd+d.phase)*d.amp+Math.sin(x*d.freq*2.2+t*d.spd*.7+d.phase)*(d.amp*.4));}
+      pos.needsUpdate=true;
+    });
+    rdr.render(scene,cam);
+  })();
+})();
+
+/* ══════════════════════════════════
+   BOMBSITE CANVAS — hexagons
+══════════════════════════════════ */
+(()=>{
+  const canvas=document.getElementById('bomb-c');
+  const rdr=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  rdr.setPixelRatio(Math.min(devicePixelRatio,2));
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(60,1,.1,1000);
+  cam.position.set(0,0,9);
+  const rsz=()=>{const W=canvas.parentElement.offsetWidth,H=canvas.parentElement.offsetHeight;rdr.setSize(W,H);cam.aspect=W/H;cam.updateProjectionMatrix();};
+  rsz();addEventListener('resize',rsz);
+  const palette=[0xc77dff,0xff006e,0x00f5d4,0x9d4edd,0xe0aaff];
+  function makeHex(radius,col,opacity){
+    const pts=[];
+    for(let i=0;i<=6;i++){const a=(Math.PI/3)*i-Math.PI/6;pts.push(new THREE.Vector3(Math.cos(a)*radius,Math.sin(a)*radius,0));}
+    const geo=new THREE.BufferGeometry().setFromPoints(pts);
+    return new THREE.Line(geo,new THREE.LineBasicMaterial({color:col,transparent:true,opacity}));
+  }
+  const hexGroups=[];
+  for(let g=0;g<22;g++){
+    const col=palette[g%palette.length];
+    const grp=new THREE.Group();
+    const layers=1+Math.floor(Math.random()*3);
+    for(let l=0;l<layers;l++){const r=.12+l*.2+Math.random()*.15;grp.add(makeHex(r,col,.08+Math.random()*.25));}
+    grp.position.set((Math.random()-.5)*22,(Math.random()-.5)*14,(Math.random()-.5)*4);
+    grp.rotation.z=Math.random()*Math.PI;
+    grp.userData={rx:(Math.random()-.5)*.003,ry:(Math.random()-.5)*.002,rz:(Math.random()-.5)*.004,fa:Math.random()*.14+.04,fs:Math.random()*.4+.2,fp:Math.random()*Math.PI*2};
+    scene.add(grp);hexGroups.push(grp);
+  }
+  const N=700;const ppos=new Float32Array(N*3);
+  for(let i=0;i<N;i++){ppos[i*3]=(Math.random()-.5)*24;ppos[i*3+1]=(Math.random()-.5)*16;ppos[i*3+2]=(Math.random()-.5)*8;}
+  const pgeo=new THREE.BufferGeometry();pgeo.setAttribute('position',new THREE.BufferAttribute(ppos,3));
+  scene.add(new THREE.Points(pgeo,new THREE.PointsMaterial({color:0x9d4edd,size:.025,transparent:true,opacity:.35})));
+  for(let r=0;r<5;r++){
+    const geo=new THREE.RingGeometry(1.1+r*.85,1.15+r*.85,6);
+    const mat=new THREE.MeshBasicMaterial({color:0x3a1a5e,transparent:true,opacity:.05,side:THREE.DoubleSide});
+    const mesh=new THREE.Mesh(geo,mat);mesh.position.z=-r*1.1;scene.add(mesh);
+  }
+  let t=0;
+  (function anim(){
+    requestAnimationFrame(anim);t+=.008;
+    hexGroups.forEach(g=>{g.rotation.x+=g.userData.rx;g.rotation.y+=g.userData.ry;g.rotation.z+=g.userData.rz;g.position.y+=Math.sin(t*g.userData.fs+g.userData.fp)*g.userData.fa*.01;});
+    rdr.render(scene,cam);
+  })();
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   RAW CANE — 2D Canvas Metaball Syrup Simulation
+   Blobs merge and pinch organically — real surface tension behaviour.
+   Each "drip column" has a source blob at top feeding a thread of
+   smaller blobs that stretch, thin, snap, and free-fall.
+   Metaball field is evaluated per-pixel via an offscreen ImageData
+   pass, then composited with a golden syrup colour ramp.
+══════════════════════════════════════════════════════════════ */
+(()=>{
+  const canvas = document.getElementById('syrup-c');
+  const ctx = canvas.getContext('2d');
+
+  let W, H;
+  const resize = () => {
+    W = canvas.width  = canvas.parentElement.offsetWidth;
+    H = canvas.height = canvas.parentElement.offsetHeight;
+  };
+  resize();
+  addEventListener('resize', resize);
+
+  /* ── colour helpers ── */
+  function syrupRGB(t) {
+    // t = 0 (edge/near-black) … 1 (core/warm amber — never bright)
+    const shadow = [28,   9,   1];
+    const dark   = [72,  26,   3];
+    const mid    = [138,  72,  10];
+    const amber  = [185, 112,  22];
+    let r, g, b;
+    if (t < 0.35) {
+      const s = t / 0.35;
+      r = shadow[0] + (dark[0] - shadow[0]) * s;
+      g = shadow[1] + (dark[1] - shadow[1]) * s;
+      b = shadow[2] + (dark[2] - shadow[2]) * s;
+    } else if (t < 0.72) {
+      const s = (t - 0.35) / 0.37;
+      r = dark[0] + (mid[0] - dark[0]) * s;
+      g = dark[1] + (mid[1] - dark[1]) * s;
+      b = dark[2] + (mid[2] - dark[2]) * s;
+    } else {
+      const s = (t - 0.72) / 0.28;
+      r = mid[0] + (amber[0] - mid[0]) * s;
+      g = mid[1] + (amber[1] - mid[1]) * s;
+      b = mid[2] + (amber[2] - mid[2]) * s;
+    }
+    return [r|0, g|0, b|0];
+  }
+
+  /* ── drip column state ── */
+  // Each column: x position (0-1), cycle speed, phase offset, scale
+  const COLS = [
+    { xf:0.50, speed:0.18, phase:0.00, scale:1.00 }, // hero
+    { xf:0.27, speed:0.25, phase:0.15, scale:0.58 },
+    { xf:0.37, speed:0.22, phase:0.55, scale:0.48 },
+    { xf:0.63, speed:0.24, phase:0.35, scale:0.52 },
+    { xf:0.73, speed:0.27, phase:0.75, scale:0.44 },
+  ];
+
+  /* ── blob data: array of {x,y,r} updated each frame ── */
+  let blobs = [];
+
+  function updateBlobs(time) {
+    blobs = [];
+    COLS.forEach(col => {
+      const cx = col.xf * W;
+      const sc = col.scale;
+      const cycle = ((time * col.speed + col.phase) % 1.0 + 1.0) % 1.0;
+
+      // nozzle source — always present, fattens during gather
+      const nozzleR = sc * (W * 0.022 + W * 0.009 * Math.min(cycle / 0.15, 1));
+      const nozzleY = H * 0.01; // just off top
+      blobs.push({ x: cx, y: nozzleY, r: nozzleR });
+
+      if (cycle < 0.72) {
+        // ── STRETCH PHASE: spawn chain of blobs along thread ──
+        const stretchProgress = cycle < 0.15 ? 0 : (cycle - 0.15) / 0.57;
+        const stretchAmt = sc * H * 0.72 * (stretchProgress - 0.18 * Math.sin(stretchProgress * Math.PI));
+
+        // sway
+        const sway = sc * W * 0.012 * Math.sin(time * 1.3 + col.phase * 6.28)
+                     * Math.min(stretchProgress / 0.4, 1);
+
+        // neck thinning
+        const neckR = sc * Math.max(
+          W * 0.003,
+          W * (0.019 - 0.016 * Math.max(0, (cycle - 0.30) / 0.35))
+        );
+
+        // thread blobs — denser near nozzle, sparse near bulb
+        const threadLen = stretchAmt;
+        const steps = Math.max(2, Math.floor(threadLen / (sc * W * 0.018)));
+        for (let i = 1; i <= steps; i++) {
+          const t2 = i / steps;
+          const bx = cx + sway * t2;
+          const by = nozzleY + threadLen * t2;
+          const br = nozzleR * (1 - t2) + neckR * t2;
+          blobs.push({ x: bx, y: by, r: Math.max(br, sc * W * 0.003) });
+        }
+
+        // bulb at bottom — grows over swell phase
+        const bulbGrow = Math.max(0, Math.min(1, (cycle - 0.10) / 0.55));
+        const bulbR = sc * (W * 0.016 + W * 0.044 * bulbGrow);
+        const bulbX = cx + sway;
+        const bulbY = nozzleY + threadLen + bulbR * 0.35;
+        blobs.push({ x: bulbX, y: bulbY, r: bulbR });
+
+      } else {
+        // ── FREE FALL: detached drop ──
+        const fallT = (cycle - 0.72) / 0.28;
+        const dropVel = sc * H * 0.88;
+        const dropY = H * 0.01 + dropVel * fallT * fallT;
+        const dropX = cx + sc * W * 0.018 * Math.sin(fallT * 16 + col.phase);
+        const dropR = sc * (W * 0.052 + W * 0.012 * fallT); // spreads slightly
+        if (dropY < H + dropR) {
+          blobs.push({ x: dropX, y: dropY, r: dropR });
+        }
+        // thin residual thread remains at top
+        const residualSteps = 4;
+        for (let i = 1; i <= residualSteps; i++) {
+          const t2 = i / residualSteps;
+          const by = nozzleY + sc * H * 0.06 * t2;
+          const br = sc * W * 0.004 * (1 - t2 * 0.7);
+          blobs.push({ x: cx, y: by, r: Math.max(br, sc * W * 0.002) });
+        }
+      }
+    });
+  }
+
+  /* ── metaball field evaluation ── */
+  // Rather than per-pixel CPU (too slow for full res), we:
+  // 1. Render at 1/3 resolution into an offscreen canvas
+  // 2. Use ImageData to write coloured pixels where field > threshold
+  // 3. Scale up to full canvas with drawImage (browser does bilinear)
+
+  const SCALE = 3; // downsample factor
+  const offscreen = document.createElement('canvas');
+  const octx = offscreen.getContext('2d');
+  let oW, oH, imgData;
+
+  function ensureOffscreen() {
+    const nW = Math.ceil(W / SCALE);
+    const nH = Math.ceil(H / SCALE);
+    if (offscreen.width !== nW || offscreen.height !== nH) {
+      offscreen.width  = oW = nW;
+      offscreen.height = oH = nH;
+      imgData = octx.createImageData(oW, oH);
+    }
+  }
+
+  const THRESHOLD = 1.0;
+
+  function renderMetaballs(time) {
+    ensureOffscreen();
+    const data = imgData.data;
+
+    for (let py = 0; py < oH; py++) {
+      for (let px = 0; px < oW; px++) {
+        const wx = px * SCALE;
+        const wy = py * SCALE;
+
+        // accumulate metaball field
+        let field = 0;
+        for (let i = 0; i < blobs.length; i++) {
+          const b = blobs[i];
+          const dx = wx - b.x;
+          const dy = wy - b.y;
+          const d2 = dx*dx + dy*dy;
+          field += (b.r * b.r) / (d2 + 0.0001);
+        }
+
+        const idx = (py * oW + px) * 4;
+
+        if (field >= THRESHOLD) {
+          // normalise field for colour mapping: THRESHOLD=dark, 2*=bright
+          const t = Math.min(1, (field - THRESHOLD) / THRESHOLD);
+          // specular shimmer
+          const shimmer = 0.5 + 0.5 * Math.sin(wy * 0.04 + time * 2.2);
+          const finalT = Math.min(1, t + shimmer * t * 0.18);
+          const [r, g, b] = syrupRGB(finalT);
+          // alpha: sharp inside, soft edge
+          const alpha = Math.min(1, (field - THRESHOLD) / (THRESHOLD * 0.12)) * 0.97;
+          data[idx]   = r;
+          data[idx+1] = g;
+          data[idx+2] = b;
+          data[idx+3] = (alpha * 255) | 0;
+        } else if (field > THRESHOLD * 0.82) {
+          // soft penumbra — thin translucent amber haze
+          const t2 = (field - THRESHOLD * 0.82) / (THRESHOLD * 0.18);
+          data[idx]   = 140;
+          data[idx+1] = 60;
+          data[idx+2] = 5;
+          data[idx+3] = (t2 * 0.28 * 255) | 0;
+        } else {
+          data[idx+3] = 0;
+        }
+      }
+    }
+
+    octx.putImageData(imgData, 0, 0);
+  }
+
+  /* ── main loop ── */
+  let t = 0;
+  (function loop() {
+    requestAnimationFrame(loop);
+    t += 0.012;
+
+    updateBlobs(t);
+    renderMetaballs(t);
+
+    ctx.clearRect(0, 0, W, H);
+    // warm ambient haze
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, 'rgba(30,8,0,0.0)');
+    grad.addColorStop(1, 'rgba(30,8,0,0.18)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // scale up the metaball offscreen render
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(offscreen, 0, 0, W, H);
+  })();
+})();
+
+/* ══════════════════════════════════
+   MARCO CANVAS — wireframe cubes
+══════════════════════════════════ */
+(()=>{
+  const canvas=document.getElementById('marco-c');
+  const rdr=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  rdr.setPixelRatio(Math.min(devicePixelRatio,2));
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(58,1,.1,1000);
+  cam.position.set(0,0,10);
+  const rsz=()=>{const W=canvas.parentElement.offsetWidth,H=canvas.parentElement.offsetHeight;rdr.setSize(W,H);cam.aspect=W/H;cam.updateProjectionMatrix();};
+  rsz();addEventListener('resize',rsz);
+  const grp=new THREE.Group();
+  [.6,1.4,2.6,4.2].forEach((s,i)=>{
+    const edges=new THREE.EdgesGeometry(new THREE.BoxGeometry(s,s,s));
+    const mat=new THREE.LineBasicMaterial({color:0xd4d0c8,transparent:true,opacity:.05+i*.032});
+    const mesh=new THREE.LineSegments(edges,mat);
+    mesh.userData={rx:.0008+i*.0003,ry:.0012+i*.0004};
+    grp.add(mesh);
+  });
+  grp.position.set(3.5,0,0);scene.add(grp);
+  for(let i=-6;i<=6;i++){
+    [[new THREE.Vector3(-10,i*.75,0),new THREE.Vector3(10,i*.75,0)],[new THREE.Vector3(i*1.3,-5,0),new THREE.Vector3(i*1.3,5,0)]].forEach(pts=>{
+      scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.015})));
+    });
+  }
+  (function anim(){requestAnimationFrame(anim);grp.children.forEach(m=>{m.rotation.x+=m.userData.rx;m.rotation.y+=m.userData.ry;});grp.rotation.y+=.0006;rdr.render(scene,cam);})();
+  const mg=document.getElementById('mgrid');
+  for(let i=0;i<96;i++){const d=document.createElement('div');mg.appendChild(d);}
+})();
+</script>
+</body>
+</html>
