@@ -177,7 +177,9 @@ body{
 #rawcane{background:var(--cane-bg);color:#f4c06a;}
 #rawcane .ptitle{color:var(--cane-glow);}
 #rawcane .ptag{color:#e9a84c;}
-#syrup-wrap{position:absolute;right:0;top:0;bottom:0;width:55%;overflow:hidden;z-index:1;}
+#cane-bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+#arcs-c{display:none;}
+#syrup-wrap{position:absolute;right:4%;top:8%;bottom:8%;width:28%;overflow:hidden;z-index:2;border-radius:4px;}
 #syrup-wrap canvas{position:absolute;inset:0;width:100%;height:100%;}
 
 /* ── MARCO ── */
@@ -280,6 +282,7 @@ body::after{
 
 <!-- 03 RAW CANE -->
 <section class="ps" id="rawcane">
+  <canvas id="cane-bg"></canvas>
   <div id="syrup-wrap"><canvas id="syrup-c"></canvas></div>
   <div class="membrane" id="mem-cane"></div>
   <div class="pc">
@@ -476,6 +479,346 @@ ScrollTrigger.create({trigger:'#intro',start:'top top',end:'bottom top',
   })();
 })();
 
+
+/* ══════════════════════════════════════════════════════════════
+   RAW CANE — SUGARCANE FIELD BACKGROUND
+   Segmented stalks with swaying leaf crowns, inspired by the
+   Carnaby Street installation render.
+══════════════════════════════════════════════════════════════ */
+(()=>{
+  const canvas = document.getElementById('cane-bg');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const resize = () => {
+    W = canvas.width  = canvas.parentElement.offsetWidth;
+    H = canvas.height = canvas.parentElement.offsetHeight;
+  };
+  resize();
+  addEventListener('resize', resize);
+
+  // Stalk definitions — xf=fractional x, scale, phase offset for sway
+  const STALKS = [
+    { xf:0.08, scale:0.85, phase:0.0,  depth:0.82 },
+    { xf:0.17, scale:1.00, phase:1.4,  depth:1.00 },
+    { xf:0.26, scale:0.78, phase:0.7,  depth:0.72 },
+    { xf:0.34, scale:0.92, phase:2.1,  depth:0.90 },
+    { xf:0.44, scale:0.70, phase:3.3,  depth:0.65 },
+    { xf:0.55, scale:0.88, phase:0.5,  depth:0.85 },
+    { xf:0.64, scale:0.75, phase:1.9,  depth:0.70 },
+    { xf:0.73, scale:1.05, phase:2.8,  depth:1.00 },
+    { xf:0.82, scale:0.80, phase:0.3,  depth:0.78 },
+    { xf:0.91, scale:0.95, phase:1.1,  depth:0.92 },
+  ];
+
+  // Node segment colours — green-yellow gradient like real sugarcane
+  function stalkColour(seg, totalSegs, depth) {
+    const t = seg / totalSegs;
+    // base: deep forest green at top, warm yellow-green lower
+    const r = Math.round((38  + 52  * t) * depth);
+    const g = Math.round((72  + 68  * t) * depth);
+    const b = Math.round((22  + 8   * t) * depth);
+    return `rgb(${r},${g},${b})`;
+  }
+
+  function nodeRingColour(depth) {
+    const d = depth;
+    return `rgba(${Math.round(92*d)},${Math.round(62*d)},${Math.round(18*d)},0.85)`;
+  }
+
+  function drawStalk(time, stalk) {
+    const { xf, scale, phase, depth } = stalk;
+    const baseX = xf * W;
+    const baseY = H * 0.98;
+
+    // gentle sway — two frequencies
+    const sway = scale * W * 0.008 * (
+      Math.sin(time * 0.7 + phase) +
+      0.4 * Math.sin(time * 1.6 + phase + 1.2)
+    );
+
+    const stalkH   = H * 0.52 * scale;
+    const stalkW   = W * 0.022 * scale;
+    const segments = Math.round(5 + 3 * scale);
+
+    // Draw segments bottom to top
+    for (let s = 0; s < segments; s++) {
+      const t0 = s       / segments;
+      const t1 = (s + 1) / segments;
+      const y0 = baseY - stalkH * t0;
+      const y1 = baseY - stalkH * t1;
+
+      // stalk tapers slightly toward top
+      const w0 = stalkW * (1 - t0 * 0.3);
+      const w1 = stalkW * (1 - t1 * 0.3);
+
+      // sway increases toward top (cantilevered)
+      const sx0 = sway * t0;
+      const sx1 = sway * t1;
+
+      // segment body
+      ctx.beginPath();
+      ctx.moveTo(baseX - w0 + sx0, y0);
+      ctx.lineTo(baseX + w0 + sx0, y0);
+      ctx.lineTo(baseX + w1 + sx1, y1);
+      ctx.lineTo(baseX - w1 + sx1, y1);
+      ctx.closePath();
+
+      const grad = ctx.createLinearGradient(baseX - w0, 0, baseX + w0, 0);
+      const c = stalkColour(s, segments, depth);
+      grad.addColorStop(0,   `rgba(20,45,12,${0.7 * depth})`);
+      grad.addColorStop(0.3, c);
+      grad.addColorStop(0.7, c);
+      grad.addColorStop(1,   `rgba(20,45,12,${0.7 * depth})`);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // node ring between segments
+      if (s < segments - 1) {
+        ctx.beginPath();
+        ctx.ellipse(baseX + sx1, y1, w1 + W * 0.003, H * 0.006, 0, 0, Math.PI * 2);
+        ctx.fillStyle = nodeRingColour(depth);
+        ctx.fill();
+      }
+    }
+
+    // Leaf crown at top
+    const topX = baseX + sway;
+    const topY = baseY - stalkH;
+    const leafCount = 5 + Math.round(scale * 3);
+
+    for (let l = 0; l < leafCount; l++) {
+      const lPhase  = (l / leafCount) * Math.PI * 2;
+      const leafLen = scale * H * 0.22 * (0.7 + 0.5 * Math.sin(lPhase + 0.5));
+      const baseAng = -Math.PI * 0.5 + (l / leafCount) * Math.PI * 2;
+
+      // leaf sway — each leaf has slight independent flutter
+      const leafSway = sway * 0.8 + scale * W * 0.006 * Math.sin(time * 2.1 + phase + lPhase);
+
+      const tipX = topX + leafSway * 0.5 + Math.cos(baseAng) * leafLen * 0.45;
+      const tipY = topY - leafLen * (0.6 + 0.3 * Math.abs(Math.cos(baseAng)));
+
+      const cpX = topX + leafSway * 0.3 + Math.cos(baseAng) * leafLen * 0.2;
+      const cpY = topY - leafLen * 0.3;
+
+      // leaf width
+      const lw = scale * W * 0.006 * (0.5 + 0.5 * Math.sin(lPhase));
+
+      ctx.save();
+      ctx.beginPath();
+      // draw leaf as a thin bezier blade
+      ctx.moveTo(topX, topY);
+      ctx.quadraticCurveTo(cpX + lw, cpY, tipX, tipY);
+      ctx.quadraticCurveTo(cpX - lw, cpY, topX, topY);
+      ctx.closePath();
+
+      const leafGrad = ctx.createLinearGradient(topX, topY, tipX, tipY);
+      const lo = 0.55 * depth;
+      leafGrad.addColorStop(0,   `rgba(55,105,28,${lo})`);
+      leafGrad.addColorStop(0.4, `rgba(72,138,38,${lo})`);
+      leafGrad.addColorStop(1,   `rgba(40,82,18,${lo * 0.4})`);
+      ctx.fillStyle = leafGrad;
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  let t = 0;
+  (function loop() {
+    requestAnimationFrame(loop);
+    t += 0.008;
+    ctx.clearRect(0, 0, W, H);
+
+    // dark soil/ground gradient at base
+    const ground = ctx.createLinearGradient(0, H * 0.82, 0, H);
+    ground.addColorStop(0, 'rgba(0,0,0,0)');
+    ground.addColorStop(1, 'rgba(8,4,1,0.55)');
+    ctx.fillStyle = ground;
+    ctx.fillRect(0, 0, W, H);
+
+    // Sort by depth so far stalks render behind near ones
+    const sorted = [...STALKS].sort((a,b) => a.depth - b.depth);
+    sorted.forEach(s => drawStalk(t, s));
+  })();
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   RAW CANE — SUSPENDED SYRUP ARCS
+   Wide glassy amber ribbons frozen mid-air (like the Carnaby
+   Street installation) that slowly drip from their lowest points.
+══════════════════════════════════════════════════════════════ */
+(()=>{
+  const canvas = document.getElementById('arcs-c');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const resize = () => {
+    W = canvas.width  = canvas.parentElement.offsetWidth;
+    H = canvas.height = canvas.parentElement.offsetHeight;
+  };
+  resize();
+  addEventListener('resize', resize);
+
+  // Arc definitions — each is a catenary-like ribbon spanning the section
+  // y values as fraction of H, amplitude of drip hang
+  const ARCS = [
+    { x0:0.02, x1:0.98, y0:0.08, y1:0.10, sag:0.18, width:18, alpha:0.62, speed:0.3  },
+    { x0:0.05, x1:0.88, y0:0.16, y1:0.14, sag:0.13, width:12, alpha:0.50, speed:0.45 },
+    { x0:0.12, x1:0.95, y0:0.24, y1:0.22, sag:0.10, width: 9, alpha:0.42, speed:0.55 },
+  ];
+
+  // Drip pendants hanging from the lowest point of each arc
+  // Each drip is independent per arc
+  const dripStates = ARCS.map((arc, i) => ({
+    cycle: i * 0.33,
+    speed: 0.14 + i * 0.05,
+  }));
+
+  // Syrup colour (same palette as metaballs but more translucent)
+  function arcColour(t, alpha) {
+    const shadow = [28,  9,  1];
+    const mid    = [130, 68, 8];
+    const amber  = [180,108,20];
+    let r, g, b;
+    if (t < 0.5) {
+      const s = t / 0.5;
+      r = shadow[0] + (mid[0] - shadow[0]) * s;
+      g = shadow[1] + (mid[1] - shadow[1]) * s;
+      b = shadow[2] + (mid[2] - shadow[2]) * s;
+    } else {
+      const s = (t - 0.5) / 0.5;
+      r = mid[0] + (amber[0] - mid[0]) * s;
+      g = mid[1] + (amber[1] - mid[1]) * s;
+      b = mid[2] + (amber[2] - mid[2]) * s;
+    }
+    return `rgba(${r|0},${g|0},${b|0},${alpha})`;
+  }
+
+  // Evaluate catenary-like arc Y at fractional x position
+  function arcY(arc, frac, W, H) {
+    const y0 = arc.y0 * H;
+    const y1 = arc.y1 * H;
+    // parabolic sag approximation
+    const base = y0 + (y1 - y0) * frac;
+    const sag  = arc.sag * H * 4 * frac * (1 - frac); // max at middle
+    return base + sag;
+  }
+
+  function drawArc(arc, drip, time) {
+    const x0 = arc.x0 * W;
+    const x1 = arc.x1 * W;
+    const steps = 80;
+    const hw = arc.width * 0.5;
+
+    // slight breathing motion — arc sags a tiny bit over time
+    const breathe = 1 + 0.015 * Math.sin(time * arc.speed + arc.x0 * 5);
+
+    // Build top and bottom edge paths
+    const topPts = [], botPts = [];
+    for (let i = 0; i <= steps; i++) {
+      const frac = i / steps;
+      const x = x0 + (x1 - x0) * frac;
+      const y = arcY({ ...arc, sag: arc.sag * breathe }, frac, W, H);
+      // slight lateral ripple
+      const ripple = W * 0.003 * Math.sin(frac * Math.PI * 6 + time * 1.4 + arc.x0 * 8);
+      topPts.push({ x: x + ripple, y: y - hw });
+      botPts.push({ x: x + ripple, y: y + hw });
+    }
+
+    // Draw filled ribbon
+    ctx.beginPath();
+    ctx.moveTo(topPts[0].x, topPts[0].y);
+    for (let i = 1; i <= steps; i++) ctx.lineTo(topPts[i].x, topPts[i].y);
+    for (let i = steps; i >= 0; i--) ctx.lineTo(botPts[i].x, botPts[i].y);
+    ctx.closePath();
+
+    // Gradient across width (dark edges, bright amber core)
+    const cx2 = (x0 + x1) / 2;
+    const midY = arcY(arc, 0.5, W, H);
+    const grad = ctx.createLinearGradient(cx2, midY - hw, cx2, midY + hw);
+    grad.addColorStop(0,    arcColour(0.1, arc.alpha * 0.3));
+    grad.addColorStop(0.25, arcColour(0.6, arc.alpha * 0.85));
+    grad.addColorStop(0.5,  arcColour(1.0, arc.alpha));
+    grad.addColorStop(0.75, arcColour(0.6, arc.alpha * 0.85));
+    grad.addColorStop(1,    arcColour(0.1, arc.alpha * 0.3));
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Bright specular highlight streak along top edge
+    ctx.beginPath();
+    ctx.moveTo(topPts[0].x, topPts[0].y + 1.5);
+    for (let i = 1; i <= steps; i++) ctx.lineTo(topPts[i].x, topPts[i].y + 1.5);
+    ctx.strokeStyle = `rgba(220,160,50,${arc.alpha * 0.35})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // ── Drip pendant from the arc's lowest point ──
+    drip.cycle = ((drip.cycle + drip.speed * 0.008) % 1.0);
+    const cycle = drip.cycle;
+
+    // lowest point of this arc
+    const lowFrac = 0.5 - (arc.y1 - arc.y0) / (arc.sag * 8 + 0.001) * 0.1;
+    const dripX   = x0 + (x1 - x0) * Math.max(0.3, Math.min(0.7, lowFrac));
+    const dripOriginY = arcY(arc, lowFrac, W, H) + hw;
+
+    if (cycle < 0.68) {
+      // Stretching pendant
+      const progress = Math.max(0, (cycle - 0.12) / 0.56);
+      const ease = progress - 0.2 * Math.sin(progress * Math.PI);
+      const threadLen = H * 0.12 * ease;
+      const neckR = Math.max(2, 6 - 4.5 * Math.max(0, (cycle - 0.35) / 0.33));
+      const bulbR = 5 + 18 * Math.max(0, (cycle - 0.1) / 0.58);
+      const sway  = W * 0.012 * Math.sin(time * 1.8 + arc.x0 * 9);
+
+      // thread
+      if (threadLen > 2) {
+        const tg = ctx.createLinearGradient(dripX, dripOriginY, dripX, dripOriginY + threadLen);
+        tg.addColorStop(0, `rgba(160,90,12,0.9)`);
+        tg.addColorStop(1, `rgba(100,55,8,0.6)`);
+        ctx.beginPath();
+        ctx.moveTo(dripX - neckR * 0.5, dripOriginY);
+        ctx.quadraticCurveTo(dripX + sway * 0.5, dripOriginY + threadLen * 0.5, dripX + sway - neckR * 0.3, dripOriginY + threadLen);
+        ctx.quadraticCurveTo(dripX + sway * 0.5, dripOriginY + threadLen * 0.5, dripX + neckR * 0.5, dripOriginY);
+        ctx.closePath();
+        ctx.fillStyle = tg;
+        ctx.fill();
+      }
+      // bulb
+      const bg2 = ctx.createRadialGradient(dripX + sway, dripOriginY + threadLen, 0, dripX + sway, dripOriginY + threadLen, bulbR);
+      bg2.addColorStop(0,   `rgba(200,130,25,0.95)`);
+      bg2.addColorStop(0.6, `rgba(140,78,10,0.88)`);
+      bg2.addColorStop(1,   `rgba(60,28,3,0.0)`);
+      ctx.beginPath();
+      ctx.arc(dripX + sway, dripOriginY + threadLen, bulbR, 0, Math.PI * 2);
+      ctx.fillStyle = bg2;
+      ctx.fill();
+
+    } else {
+      // Free-fall drop
+      const fallT = (cycle - 0.68) / 0.32;
+      const dropY = dripOriginY + H * 0.22 * fallT * fallT;
+      const dropX = dripX + W * 0.01 * Math.sin(fallT * 12 + arc.x0);
+      const dropR = 7 + 6 * fallT;
+      if (dropY < H + dropR) {
+        const dg = ctx.createRadialGradient(dropX, dropY, 0, dropX, dropY, dropR);
+        dg.addColorStop(0,   `rgba(200,128,22,0.92)`);
+        dg.addColorStop(0.65,`rgba(130,72,8,0.78)`);
+        dg.addColorStop(1,   `rgba(60,28,3,0.0)`);
+        ctx.beginPath();
+        ctx.arc(dropX, dropY, dropR, 0, Math.PI * 2);
+        ctx.fillStyle = dg;
+        ctx.fill();
+      }
+    }
+  }
+
+  let t = 0;
+  (function loop() {
+    requestAnimationFrame(loop);
+    t += 0.01;
+    ctx.clearRect(0, 0, W, H);
+    ARCS.forEach((arc, i) => drawArc(arc, dripStates[i], t));
+  })();
+})();
+
 /* ══════════════════════════════════════════════════════════════
    RAW CANE — 2D Canvas Metaball Syrup Simulation
    Blobs merge and pinch organically — real surface tension behaviour.
@@ -524,84 +867,115 @@ ScrollTrigger.create({trigger:'#intro',start:'top top',end:'bottom top',
   }
 
   /* ── drip column state ── */
-  // Each column: x position (0-1), cycle speed, phase offset, scale
   const COLS = [
-    { xf:0.50, speed:0.18, phase:0.00, scale:1.00 }, // hero
-    { xf:0.27, speed:0.25, phase:0.15, scale:0.58 },
-    { xf:0.37, speed:0.22, phase:0.55, scale:0.48 },
-    { xf:0.63, speed:0.24, phase:0.35, scale:0.52 },
-    { xf:0.73, speed:0.27, phase:0.75, scale:0.44 },
+    { xf:0.30, speed:0.055, phase:0.00, scale:1.00, coilDir: 1  },
+    { xf:0.55, speed:0.062, phase:0.42, scale:0.72, coilDir:-1  },
+    { xf:0.78, speed:0.068, phase:0.78, scale:0.58, coilDir: 1  },
   ];
 
-  /* ── blob data: array of {x,y,r} updated each frame ── */
+  /* ── rope coil state per column ──
+     Viscous rope extrusion: tip traces a slow spiral downward,
+     leaving folded coils at the bottom — Blender fluid style.    */
+  const ropeStates = COLS.map((col, i) => ({
+    pts:        [],
+    tipX:       col.xf,
+    tipY:       0.02,
+    coilAngle:  i * 1.2,
+    pileY:      0.92,
+    pileBlobs:  [],
+  }));
+
+  /* ── blob data ── */
   let blobs = [];
+
+  /* ── layered organic sway ── */
+  function swayF(t, phase, amp) {
+    return amp * (
+      0.60 * Math.sin(t * 0.55 + phase * 3.1) +
+      0.28 * Math.sin(t * 1.30 + phase * 5.8 + 0.9) +
+      0.12 * Math.sin(t * 2.80 + phase * 2.2 + 1.7)
+    );
+  }
 
   function updateBlobs(time) {
     blobs = [];
-    COLS.forEach(col => {
-      const cx = col.xf * W;
-      const sc = col.scale;
-      const cycle = ((time * col.speed + col.phase) % 1.0 + 1.0) % 1.0;
 
-      // nozzle source — always present, fattens during gather
-      const nozzleR = sc * (W * 0.022 + W * 0.009 * Math.min(cycle / 0.15, 1));
-      const nozzleY = H * 0.01; // just off top
-      blobs.push({ x: cx, y: nozzleY, r: nozzleR });
+    COLS.forEach((col, ci) => {
+      const state   = ropeStates[ci];
+      const sc      = col.scale;
+      const baseX   = col.xf * W;
+      const nozzleY = H * 0.015;
 
-      if (cycle < 0.72) {
-        // ── STRETCH PHASE: spawn chain of blobs along thread ──
-        const stretchProgress = cycle < 0.15 ? 0 : (cycle - 0.15) / 0.57;
-        const stretchAmt = sc * H * 0.72 * (stretchProgress - 0.18 * Math.sin(stretchProgress * Math.PI));
+      // ── advance rope tip ──
+      const descendSpeed = sc * H * 0.0016; // slow — thick viscous fluid
+      const coilR        = sc * W * 0.032;  // coil radius
+      const coilSpd      = 0.50 + sc * 0.25;
 
-        // sway
-        const sway = sc * W * 0.012 * Math.sin(time * 1.3 + col.phase * 6.28)
-                     * Math.min(stretchProgress / 0.4, 1);
+      state.coilAngle += coilSpd * 0.016 * col.coilDir;
 
-        // neck thinning
-        const neckR = sc * Math.max(
-          W * 0.003,
-          W * (0.019 - 0.016 * Math.max(0, (cycle - 0.30) / 0.35))
-        );
+      const targetX = baseX
+        + coilR * Math.cos(state.coilAngle)
+        + swayF(time, col.phase, sc * W * 0.006);
+      const targetY = Math.min(state.tipY + descendSpeed, state.pileY * H);
 
-        // thread blobs — denser near nozzle, sparse near bulb
-        const threadLen = stretchAmt;
-        const steps = Math.max(2, Math.floor(threadLen / (sc * W * 0.018)));
-        for (let i = 1; i <= steps; i++) {
-          const t2 = i / steps;
-          const bx = cx + sway * t2;
-          const by = nozzleY + threadLen * t2;
-          const br = nozzleR * (1 - t2) + neckR * t2;
-          blobs.push({ x: bx, y: by, r: Math.max(br, sc * W * 0.003) });
-        }
+      // viscous drag — sluggish response
+      state.tipX += (targetX - state.tipX) * 0.07;
+      state.tipY  = targetY;
 
-        // bulb at bottom — grows over swell phase
-        const bulbGrow = Math.max(0, Math.min(1, (cycle - 0.10) / 0.55));
-        const bulbR = sc * (W * 0.016 + W * 0.044 * bulbGrow);
-        const bulbX = cx + sway;
-        const bulbY = nozzleY + threadLen + bulbR * 0.35;
-        blobs.push({ x: bulbX, y: bulbY, r: bulbR });
+      state.pts.push({ x: state.tipX, y: state.tipY });
 
-      } else {
-        // ── FREE FALL: detached drop ──
-        const fallT = (cycle - 0.72) / 0.28;
-        const dropVel = sc * H * 0.88;
-        const dropY = H * 0.01 + dropVel * fallT * fallT;
-        const dropX = cx + sc * W * 0.018 * Math.sin(fallT * 16 + col.phase);
-        const dropR = sc * (W * 0.052 + W * 0.012 * fallT); // spreads slightly
-        if (dropY < H + dropR) {
-          blobs.push({ x: dropX, y: dropY, r: dropR });
-        }
-        // thin residual thread remains at top
-        const residualSteps = 4;
-        for (let i = 1; i <= residualSteps; i++) {
-          const t2 = i / residualSteps;
-          const by = nozzleY + sc * H * 0.06 * t2;
-          const br = sc * W * 0.004 * (1 - t2 * 0.7);
-          blobs.push({ x: cx, y: by, r: Math.max(br, sc * W * 0.002) });
-        }
+      // limit rope length — oldest points become pile blobs
+      const maxPts = Math.floor(H * 0.82 / (sc * W * 0.009 + 1));
+      if (state.pts.length > maxPts) {
+        const old2 = state.pts.shift();
+        state.pileBlobs.push({ x: old2.x, y: old2.y, r: sc * W * 0.018, life: 1.0 });
       }
+
+      // pile settles and spreads
+      state.pileBlobs = state.pileBlobs.filter(b => b.life > 0.04);
+      state.pileBlobs.forEach(b => {
+        b.r    = Math.min(b.r + sc * W * 0.00008, sc * W * 0.034);
+        b.life *= 0.9997;
+        blobs.push(b);
+      });
+
+      // reset when tip reaches pile
+      if (state.tipY >= state.pileY * H * 0.98) {
+        state.pts   = [];
+        state.tipX  = baseX + swayF(time, col.phase, sc * W * 0.005);
+        state.tipY  = nozzleY;
+        state.coilAngle += Math.PI * (0.8 + 0.5 * ((ci * 1.618) % 1));
+        state.pileBlobs.forEach(b => { b.life *= 0.55; });
+      }
+
+      // ── nozzle blob (fat — thick fluid) ──
+      const nozzleR = sc * W * 0.020;
+      blobs.push({ x: baseX, y: nozzleY, r: nozzleR });
+
+      // ── rope blobs along path ──
+      const pts = state.pts;
+      if (pts.length < 2) return;
+
+      for (let i = 0; i < pts.length; i++) {
+        const t2 = i / pts.length;
+        let r;
+        if (t2 < 0.12) {
+          r = nozzleR * (0.75 + 0.25 * (1 - t2 / 0.12));
+        } else if (t2 < 0.78) {
+          r = nozzleR * (0.72 - 0.30 * ((t2 - 0.12) / 0.66));
+        } else {
+          r = nozzleR * (0.42 + 0.32 * ((t2 - 0.78) / 0.22));
+        }
+        blobs.push({ x: pts[i].x, y: pts[i].y, r: Math.max(r, sc * W * 0.005) });
+      }
+
+      // ── tip bulb ──
+      const tip   = pts[pts.length - 1];
+      const bulbR = sc * W * 0.024 + sc * W * 0.010 * Math.sin(time * 1.1 + col.phase);
+      blobs.push({ x: tip.x, y: tip.y, r: bulbR });
     });
   }
+
 
   /* ── metaball field evaluation ── */
   // Rather than per-pixel CPU (too slow for full res), we:
