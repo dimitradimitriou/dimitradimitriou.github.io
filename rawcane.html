@@ -72,6 +72,7 @@ body{background:var(--bg);color:var(--cream);font-family:var(--font-body);font-w
 #public{background:#0a0c08;}
 .public-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;margin-top:4rem;}
 .public-col-heading{font-family:var(--font-display);font-size:clamp(1.4rem,2.5vw,2.2rem);color:var(--cream);line-height:1.1;margin-bottom:1rem;}
+.public-grid img{width:100%;height:380px;object-fit:cover;border-radius:4px;display:block;margin-top:1.5rem;}
 .public-col-body{font-size:.9rem;font-weight:300;line-height:1.9;color:rgba(245,240,232,.45);}
 .public-col img{width:100%;display:block;border-radius:6px;margin-top:2rem;}
 
@@ -192,9 +193,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:500;op
 
 <!-- PUBLIC SYSTEM -->
 <section class="proj-section" id="public">
-  <p class="section-label reveal">Public System</p>
+  <p class="section-label reveal">Spatial Experience</p>
   <div class="public-grid">
     <div class="reveal">
+      <p class="public-col-heading">Public System</p>
       <p class="public-col-body">The system extends into public space as a participatory environment. Sugar syrup becomes an active material of engagement and exploration.</p>
       <img src="artatCarnabyStreet.png" alt="Suspended syrup art at Carnaby Street"/>
     </div>
