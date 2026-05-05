@@ -1,209 +1,427 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Raw Cane — Dimitra Dimitriou</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --green-dark: #1a2e1a;
-      --green-bright: #6dff3c;
-      --gold: #c8902a;
-      --cream: #f5f0e8;
-      --black: #0a0a08;
-      --grey: #888880;
-      --font-display: 'Ciclo Display', sans-serif;
-      --font-body: 'Switzer', sans-serif;
-    }
-    html { scroll-behavior: smooth; }
-    body { background: var(--black); color: var(--cream); font-family: var(--font-body); font-weight: 300; overflow-x: hidden; }
-    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(10,10,8,0.7), transparent); }
-    nav a { color: var(--cream); text-decoration: none; font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.7; transition: opacity 0.3s; }
-    nav a:hover { opacity: 1; }
-    .hero { height: 100vh; position: relative; overflow: hidden; display: flex; align-items: flex-end; }
-    .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,10,8,0.85) 0%, rgba(10,10,8,0.2) 50%, transparent 100%); }
-    .hero-content { position: relative; z-index: 2; padding: 4rem 3rem; max-width: 900px; }
-    .project-num { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--green-bright); margin-bottom: 1rem; opacity: 0; animation: fadeUp 1s 0.3s forwards; }
-    .hero h1 { font-family: var(--font-display); font-size: clamp(5rem, 14vw, 12rem); line-height: 0.9; color: var(--cream); opacity: 0; animation: fadeUp 1s 0.5s forwards; }
-    .hero-tags { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.5rem; opacity: 0; animation: fadeUp 1s 0.8s forwards; }
-    .tag { border: 1px solid rgba(245,240,232,0.3); padding: 0.3rem 0.8rem; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; border-radius: 2px; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    section { padding: 7rem 3rem; max-width: 1400px; margin: 0 auto; }
-    .section-label { font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--green-bright); margin-bottom: 1rem; }
-    .section-title { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1; color: var(--cream); margin-bottom: 2rem; }
-    .body-text { font-size: 1rem; line-height: 1.8; color: rgba(245,240,232,0.7); max-width: 600px; }
-    .divider { width: 100%; height: 1px; background: rgba(245,240,232,0.1); }
-    .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; margin-top: 4rem; }
-    .overview-col h3 { font-family: var(--font-display); font-size: 1.5rem; color: var(--green-bright); margin-bottom: 1rem; }
-    .sketches-hero { width: 100%; max-height: 70vh; object-fit: contain; margin-bottom: 2rem; border: 1px solid rgba(245,240,232,0.08); }
-    .sketches-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1rem; }
-    .sketches-grid img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border: 1px solid rgba(245,240,232,0.08); transition: transform 0.4s ease; }
-    .sketches-grid img:hover { transform: scale(1.02); }
-    .products-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-top: 3rem; }
-    .product-card { background: #111; overflow: hidden; position: relative; }
-    .product-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; transition: transform 0.6s ease; }
-    .product-card:hover img { transform: scale(1.04); }
-    .product-card .card-label { position: absolute; bottom: 0; left: 0; right: 0; padding: 1rem 1.2rem; background: linear-gradient(to top, rgba(10,10,8,0.9), transparent); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green-bright); }
-    .mockup-full { width: 100%; max-height: 85vh; object-fit: cover; margin-top: 3rem; display: block; }
-    .mockup-half { width: 100%; object-fit: cover; margin-top: 2rem; display: block; }
-    .inuse-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; margin-top: 3rem; }
-    .inuse-layout img { width: 100%; object-fit: cover; display: block; }
-    .public-full { width: 100%; margin-top: 3rem; display: block; }
-    .loop-section { background: var(--green-dark); padding: 6rem 3rem; }
-    .loop-inner { max-width: 1400px; margin: 0 auto; }
-    .loop-flow { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 4rem; flex-wrap: wrap; }
-    .loop-step { text-align: center; flex: 1; min-width: 120px; }
-    .loop-step .step-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--green-bright); margin-bottom: 0.5rem; }
-    .loop-step .step-name { font-family: var(--font-display); font-size: 1.8rem; line-height: 1; color: var(--cream); }
-    .loop-arrow { font-size: 1.5rem; color: var(--gold); flex-shrink: 0; }
-    footer { padding: 3rem; border-top: 1px solid rgba(245,240,232,0.1); display: flex; justify-content: space-between; align-items: center; }
-    footer a { color: var(--cream); text-decoration: none; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.5; transition: opacity 0.3s; }
-    footer a:hover { opacity: 1; }
-    footer .brand { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0.1em; color: var(--green-bright); }
-    @media (max-width: 768px) {
-      nav { padding: 1rem 1.5rem; }
-      section { padding: 4rem 1.5rem; }
-      .hero-content { padding: 2rem 1.5rem; }
-      .overview-grid { grid-template-columns: 1fr; gap: 2rem; }
-      .sketches-grid { grid-template-columns: 1fr 1fr; }
-      .products-row { grid-template-columns: 1fr; }
-      .inuse-layout { grid-template-columns: 1fr; }
-      .loop-flow { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
-      footer { flex-direction: column; gap: 1rem; text-align: center; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Raw Cane — Dimitra Dimitriou</title>
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,300,500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=ciclo@400,700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --cream:#f5f0e8;
+  --cream-dim:#c8b99a;
+  --bg:#0a0c08;
+  --rc-green:#1a3a1a;
+  --rc-green-mid:#2d5a2d;
+  --rc-lime:#4caf28;
+  --rc-gold:#c8a84b;
+  --rc-gold-light:#e8c96a;
+  --font-display:'Ciclo',Georgia,serif;
+  --font-body:'Switzer',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--cream);
+  font-family:var(--font-body);
+  font-weight:300;
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ── CURSOR ── */
+#cursor-dot{position:fixed;width:6px;height:6px;background:var(--rc-gold-light);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
+#cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(200,168,75,.35);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .28s,height .28s,border-color .3s;}
+#cursor-ring.grow{width:54px;height:54px;border-color:rgba(200,168,75,.65);}
+
+/* ── CHROME ── */
+#back-nav{
+  position:fixed;top:2.2rem;left:2.8rem;z-index:200;
+  font-size:11px;font-weight:400;letter-spacing:.12em;
+  color:rgba(245,240,232,.28);text-decoration:none;
+  text-transform:uppercase;transition:color .3s;cursor:none;
+}
+#back-nav:hover{color:var(--cream-dim);}
+#progress-bar{
+  position:fixed;top:0;left:0;height:1px;
+  background:linear-gradient(90deg,var(--rc-gold),var(--rc-gold-light));
+  z-index:300;width:0%;transition:width .1s linear;
+}
+
+/* ── HERO ── */
+#hero{
+  position:relative;min-height:100vh;
+  display:flex;align-items:flex-end;
+  overflow:hidden;
+}
+#hero-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center;
+  filter:brightness(.55) saturate(.9);
+}
+#hero-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(10,12,8,.95) 0%,rgba(10,8,4,.3) 60%,transparent 100%),
+             radial-gradient(ellipse at 70% 40%,rgba(200,168,75,.08) 0%,transparent 60%);
+}
+.hero-inner{
+  position:relative;z-index:10;
+  padding:0 9rem 6rem;max-width:1200px;
+}
+.hero-meta{
+  font-size:10px;letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(200,168,75,.7);margin-bottom:1.4rem;
+  display:flex;align-items:center;gap:1.2rem;
+}
+.hero-meta::before{content:'';width:32px;height:1px;background:rgba(200,168,75,.4);}
+.hero-title{
+  font-family:var(--font-display);
+  font-size:clamp(4rem,9vw,8.5rem);
+  font-weight:400;line-height:.95;
+  color:var(--cream);margin-bottom:2rem;
+}
+.hero-desc{
+  font-size:1rem;font-weight:300;line-height:1.85;
+  color:rgba(245,240,232,.55);max-width:560px;
+  margin-bottom:2.8rem;
+}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.hero-tag{
+  font-size:8px;letter-spacing:.2em;text-transform:uppercase;
+  padding:5px 13px;border:1px solid rgba(200,168,75,.3);
+  color:rgba(200,168,75,.7);
+}
+.hero-year{
+  position:absolute;bottom:6rem;right:9rem;
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(245,240,232,.2);
+}
+
+/* ── SECTIONS ── */
+.proj-section{
+  padding:8rem 9rem;position:relative;
+  border-top:1px solid rgba(200,168,75,.06);
+}
+.section-label{
+  font-size:9px;letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(200,168,75,.5);margin-bottom:3.5rem;
+  display:flex;align-items:center;gap:1rem;
+}
+.section-label::before{content:'';width:24px;height:1px;background:rgba(200,168,75,.3);}
+.section-heading{
+  font-family:var(--font-display);
+  font-size:clamp(1.8rem,3.5vw,3rem);
+  font-weight:400;color:var(--cream);
+  line-height:1.1;margin-bottom:1.2rem;
+}
+.section-body{
+  font-size:.95rem;font-weight:300;line-height:1.9;
+  color:rgba(245,240,232,.5);max-width:520px;
+}
+.two-col{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:5rem;align-items:center;margin-top:4rem;
+}
+.two-col-text{}
+.img-screen{width:100%;display:block;border-radius:6px;}
+.img-blend{width:100%;display:block;mix-blend-mode:screen;}
+
+/* ── OVERVIEW ── */
+#overview{background:linear-gradient(135deg,#0f1a0f 0%,#0a0c08 100%);}
+#overview-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:5rem;margin-top:5rem;align-items:start;
+}
+.overview-col .col-label{
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(200,168,75,.6);margin-bottom:1rem;
+  padding-bottom:.6rem;border-bottom:1px solid rgba(200,168,75,.2);
+}
+.overview-col .col-text{
+  font-size:.9rem;font-weight:300;line-height:1.9;
+  color:rgba(245,240,232,.45);
+}
+
+/* ── FORM EXPLORATION ── */
+#form{background:#0a0c08;}
+.sketches-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:2rem;margin-top:4rem;
+}
+.sketch-img{
+  width:100%;display:block;border-radius:4px;
+  filter:contrast(1.05);
+}
+
+/* ── PRODUCT ── */
+#product{background:linear-gradient(180deg,#0f1a0f,#0a0c08);}
+.product-trio{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:2rem;margin-top:4rem;align-items:end;
+}
+.product-trio img{width:100%;display:block;mix-blend-mode:screen;}
+
+/* ── IN USE ── */
+#inuse{background:#0a0c08;}
+.inuse-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:2rem;margin-top:4rem;
+}
+.inuse-grid img{width:100%;display:block;border-radius:6px;}
+
+/* ── PUBLIC SYSTEM ── */
+#public{background:linear-gradient(180deg,#0a0c08,#0f1a0f);}
+
+/* ── SYSTEM LOOP ── */
+#system{background:#0a0c08;}
+.system-flow{
+  display:flex;align-items:center;justify-content:center;
+  gap:0;margin-top:5rem;flex-wrap:wrap;
+}
+.flow-node{
+  text-align:center;padding:2rem 2.5rem;
+  border:1px solid rgba(200,168,75,.2);min-width:130px;
+}
+.flow-node .node-label{
+  font-size:8px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(200,168,75,.5);margin-bottom:.5rem;
+}
+.flow-node .node-title{
+  font-family:var(--font-display);
+  font-size:1.1rem;color:var(--cream);
+}
+.flow-arrow{font-size:1.2rem;color:rgba(200,168,75,.4);padding:0 .5rem;}
+.system-desc{
+  text-align:center;margin-top:4rem;
+  font-size:.95rem;font-weight:300;line-height:1.9;
+  color:rgba(245,240,232,.35);max-width:600px;
+  margin-left:auto;margin-right:auto;
+}
+
+/* ── FOOTER ── */
+#footer-nav{
+  padding:5rem 9rem 6rem;
+  border-top:1px solid rgba(200,168,75,.08);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.fnav-back{
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(245,240,232,.25);text-decoration:none;
+  transition:color .3s;cursor:none;
+}
+.fnav-back:hover{color:var(--cream);}
+.fnav-sig{
+  font-family:var(--font-display);
+  font-size:1.1rem;color:rgba(76,175,40,.2);
+}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(32px);}
+
+/* grain */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:500;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px;
+}
+
+@media(max-width:900px){
+  .proj-section{padding:5rem 2.5rem;}
+  .hero-inner{padding:0 2.5rem 5rem;}
+  .hero-year{right:2.5rem;}
+  .two-col,.sketches-grid,.product-trio,.inuse-grid,#overview-grid{grid-template-columns:1fr;}
+  #footer-nav{padding:4rem 2.5rem 5rem;flex-direction:column;gap:2rem;}
+  .system-flow{flex-direction:column;}
+  .flow-arrow{transform:rotate(90deg);}
+}
+</style>
 </head>
 <body>
-  <nav>
-    <a href="https://dimitradimitriou.github.io/work.html">&larr; All Work</a>
-    <span style="font-family:var(--font-display);font-size:1rem;letter-spacing:0.1em;color:var(--green-bright)">RAW CANE</span>
-  </nav>
 
-  <div class="hero">
-    <img class="hero-img" src="Web_1366___11.png" alt="Raw Cane hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <p class="project-num">04 &mdash; Branding &amp; Product Design</p>
-      <h1>Raw<br>Cane</h1>
-      <div class="hero-tags">
-        <span class="tag">Branding</span>
-        <span class="tag">Product Design</span>
-        <span class="tag">Packaging</span>
-        <span class="tag">Spatial Design</span>
-        <span class="tag">Material Behaviour</span>
-        <span class="tag">2024 &ndash; 2025</span>
-      </div>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<div id="progress-bar"></div>
+<a href="index.html" id="back-nav">← All Work</a>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <img id="hero-img" src="Web_1366___11.png" alt="Raw Cane hero"/>
+  <div id="hero-overlay"></div>
+  <div class="hero-inner">
+    <p class="hero-meta reveal">04 — Branding &amp; Product Design</p>
+    <h1 class="hero-title reveal">Raw Cane</h1>
+    <p class="hero-desc reveal">Raw Cane reimagines sugar syrup as an interactive material, transforming it from a passive ingredient into a tactile and participatory experience. Rooted in the contrast between control and indulgence, the project invites users to engage with sweetness in real time through product, interaction and environment.</p>
+    <div class="hero-tags reveal">
+      <span class="hero-tag">Branding</span>
+      <span class="hero-tag">Product Design</span>
+      <span class="hero-tag">Packaging</span>
+      <span class="hero-tag">Spatial Design</span>
+      <span class="hero-tag">Material Behaviour</span>
+    </div>
+  </div>
+  <p class="hero-year reveal">2025 — 2026</p>
+</section>
+
+<!-- ══ OVERVIEW ══ -->
+<section class="proj-section" id="overview">
+  <p class="section-label reveal">Overview</p>
+  <div id="overview-grid">
+    <div class="overview-col reveal">
+      <p class="col-label">Context</p>
+      <p class="col-text">Raw Cane reimagines sugar syrup as an interactive material, transforming it from a passive ingredient into a tactile and participatory experience. Rooted in the contrast between control and indulgence, the project invites users to engage with sweetness in real time through product, interaction and environment.</p>
+      <p class="col-text" style="margin-top:1rem;">The system extends beyond packaging into installations and community led experiences, positioning the brand as a design driven identity centred on material behaviour and social interaction.</p>
+    </div>
+    <div class="overview-col reveal">
+      <p class="col-label">Intent</p>
+      <p class="col-text">This project aims to reconnect users with the origin of sugar by turning consumption into interaction. Through playful engagement, users control shape and experience sweetness in real time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FORM EXPLORATION ══ -->
+<section class="proj-section" id="form">
+  <p class="section-label reveal">Form Exploration</p>
+  <div class="two-col">
+    <div class="two-col-text reveal">
+      <h2 class="section-heading">Pencil Sketch → Neural Material Pass → Final Refined Outcomes</h2>
+      <p class="section-body" style="margin-top:1rem;">Form exploration through pencil sketches as well as Illustrator to create organic but yet industrial form.</p>
+    </div>
+    <div class="reveal">
+      <img src="IMG_1558.png" alt="Main bottle sketch" class="sketch-img"/>
+    </div>
+  </div>
+  <div class="sketches-grid" style="margin-top:3rem;">
+    <img src="IMG_1561.png" alt="Spatial installation sketch" class="sketch-img reveal"/>
+    <img src="IMG_1563.png" alt="Collective space sketch" class="sketch-img reveal"/>
+    <img src="IMG_1562.png" alt="Sachet sketch" class="sketch-img reveal"/>
+    <img src="IMG_1363.PNG" alt="Product sketch detail" class="sketch-img reveal"/>
+  </div>
+</section>
+
+<!-- ══ FINAL PRODUCTS ══ -->
+<section class="proj-section" id="product">
+  <p class="section-label reveal">System Response</p>
+  <h2 class="section-heading reveal">Final Refined Outcomes</h2>
+  <p class="section-body reveal">System components define how sugar is accessed, carried and activated across contexts. Each object introduces a distinct point of interaction, structuring behaviour through use.</p>
+  <div class="product-trio">
+    <img src="sugarcane_bottle23.png" alt="Raw Cane main bottle" class="reveal"/>
+    <img src="refill_2_2.png" alt="Raw Cane refill sachet" class="reveal"/>
+    <img src="SACHETS23.png" alt="Raw Cane sachets" class="reveal"/>
+  </div>
+  <div class="two-col" style="margin-top:5rem;">
+    <div class="reveal">
+      <img src="mock_up_suagarcane23.jpg" alt="Raw Cane bottle in use" class="img-screen"/>
+    </div>
+    <div class="reveal">
+      <img src="sachet_bre_mock_up.png" alt="Raw Cane sachet mock up" class="img-screen"/>
+    </div>
+  </div>
+</section>
+
+<!-- ══ IN USE ══ -->
+<section class="proj-section" id="inuse">
+  <p class="section-label reveal">Product in Use</p>
+  <div class="two-col">
+    <div class="two-col-text reveal">
+      <h2 class="section-heading">Interaction Through Use</h2>
+      <p class="section-body" style="margin-top:1rem;">Through playful engagement, users control shape and experience sweetness in real time. The product becomes a tool for creative expression — from breakfast tables to social moments.</p>
+    </div>
+    <div class="reveal">
+      <img src="Syrup_fun_with_friends_in_daylight.png" alt="Friends using Raw Cane" class="img-screen"/>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PUBLIC SYSTEM ══ -->
+<section class="proj-section" id="public">
+  <p class="section-label reveal">Public System</p>
+  <div class="two-col">
+    <div class="two-col-text reveal">
+      <h2 class="section-heading">Suspended Syrup Art at Carnaby Street</h2>
+      <p class="section-body" style="margin-top:1rem;">The system extends into public space as a participatory environment. Sugar syrup becomes an active material of engagement and exploration.</p>
+    </div>
+    <div class="reveal">
+      <img src="2Suspended_syrup_art_at_Carnaby_Street.png" alt="Suspended syrup installation at Carnaby Street" class="img-screen"/>
     </div>
   </div>
 
-  <section>
-    <p class="section-label">Overview</p>
-    <h2 class="section-title">Context &amp; Intent</h2>
-    <div class="overview-grid">
-      <div class="overview-col">
-        <h3>Context</h3>
-        <p class="body-text">Raw Cane reimagines sugar syrup as an interactive material, transforming it from a passive ingredient into a tactile and participatory experience. Rooted in the contrast between control and indulgence, the project invites users to engage with sweetness in real time through product, interaction and environment.</p>
-        <br>
-        <p class="body-text">The system extends beyond packaging into installations and community led experiences, positioning the brand as a design driven identity centred on material behaviour and social interaction.</p>
-      </div>
-      <div class="overview-col">
-        <h3>Intent</h3>
-        <p class="body-text">This project aims to reconnect users with the origin of sugar by turning consumption into interaction. Through playful engagement, users control shape and experience sweetness in real time.</p>
-      </div>
+  <!-- Collective Space -->
+  <div class="two-col" style="margin-top:6rem;">
+    <div class="reveal">
+      <img src="IMG_1563.png" alt="Collective space activation sketch" class="img-screen"/>
     </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <section>
-    <p class="section-label">Form Exploration</p>
-    <h2 class="section-title">Pencil Sketch &rarr; Neural Material Pass &rarr; Final Refined Outcomes</h2>
-    <p class="body-text">Form exploration through pencil sketches as well as Illustrator to create organic but yet industrial form.</p>
-    <img class="sketches-hero" src="IMG_1558.png" alt="Main bottle sketch">
-    <div class="sketches-grid">
-      <img src="IMG_1561.png" alt="Spatial installation sketch">
-      <img src="IMG_1563.png" alt="Collective space sketch">
-      <img src="IMG_1562.png" alt="Sachet sketch">
-      <img src="IMG_1363.PNG" alt="Product sketch detail">
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <section>
-    <p class="section-label">System Response</p>
-    <h2 class="section-title">Final Refined Outcomes</h2>
-    <p class="body-text">System components define how sugar is accessed, carried and activated across contexts. Each object introduces a distinct point of interaction, structuring behaviour through use.</p>
-    <div class="products-row">
-      <div class="product-card">
-        <img src="sugarcane_bottle23.png" alt="Raw Cane main bottle">
-        <span class="card-label">Main Bottle</span>
-      </div>
-      <div class="product-card">
-        <img src="refill_2_2.png" alt="Raw Cane refill sachet">
-        <span class="card-label">Refill Sachet</span>
-      </div>
-      <div class="product-card">
-        <img src="SACHETS__2.png" alt="Raw Cane sachets">
-        <span class="card-label">Sachets</span>
-      </div>
-    </div>
-    <img class="mockup-full" src="NEWWW_mock_up_suagarcane_bottle.jpg" alt="Raw Cane bottle in use">
-    <img class="mockup-half" src="sachet_bre_mock_up.png" alt="Raw Cane sachet mock up">
-  </section>
-
-  <div class="divider"></div>
-
-  <section>
-    <p class="section-label">Product in Use</p>
-    <h2 class="section-title">Interaction Through Use</h2>
-    <div class="inuse-layout">
-      <div>
-        <p class="body-text">Through playful engagement, users control shape and experience sweetness in real time. The product becomes a tool for creative expression &mdash; from breakfast tables to social moments.</p>
-      </div>
-      <img src="Syrup_fun_with_friends_in_daylight.png" alt="Friends using Raw Cane">
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <section>
-    <p class="section-label">Public System</p>
-    <h2 class="section-title">Suspended Syrup Art at Carnaby Street</h2>
-    <p class="body-text">The system extends into public space as a participatory environment. Sugar syrup becomes an active material of engagement and exploration.</p>
-    <img class="public-full" src="2Suspended_syrup_art_at_Carnaby_Street.png" alt="Suspended syrup installation at Carnaby Street">
-    <div style="margin-top: 4rem;">
-      <h2 class="section-title">Collective Space Activation</h2>
-      <p class="body-text">The installation creates a shared environment that reconnects users with the natural origins of sugar cane through tactile sand based interactions as well as collective spatial engagement.</p>
-    </div>
-  </section>
-
-  <div class="loop-section">
-    <div class="loop-inner">
-      <p class="section-label">The System</p>
-      <h2 class="section-title">A Continuous Loop</h2>
-      <p class="body-text">The system operates as a continuous loop between natural origin, designed objects, and collective spatial activation.</p>
-      <div class="loop-flow">
-        <div class="loop-step"><div class="step-label">Origin</div><div class="step-name">Sugarcane</div></div>
-        <div class="loop-arrow">&rarr;</div>
-        <div class="loop-step"><div class="step-label">Designed</div><div class="step-name">Product</div></div>
-        <div class="loop-arrow">&rarr;</div>
-        <div class="loop-step"><div class="step-label">Social</div><div class="step-name">Interaction</div></div>
-        <div class="loop-arrow">&rarr;</div>
-        <div class="loop-step"><div class="step-label">Public</div><div class="step-name">Space</div></div>
-        <div class="loop-arrow">&rarr;</div>
-        <div class="loop-step"><div class="step-label">Shared</div><div class="step-name">Community</div></div>
-      </div>
+    <div class="two-col-text reveal">
+      <h2 class="section-heading">Collective Space Activation</h2>
+      <p class="section-body" style="margin-top:1rem;">The installation creates a shared environment that reconnects users with the natural origins of sugar cane through tactile sand based interactions as well as collective spatial engagement.</p>
     </div>
   </div>
+</section>
 
-  <footer>
-    <a href="https://dimitradimitriou.github.io/work.html">&larr; All Work</a>
-    <span class="brand">RAW CANE</span>
-    <span style="font-size:0.75rem;letter-spacing:0.1em;opacity:0.4;color:var(--cream)">Dimitra Dimitriou &mdash; 2024/25</span>
-  </footer>
+<!-- ══ SYSTEM LOOP ══ -->
+<section class="proj-section" id="system">
+  <p class="section-label reveal">The System</p>
+  <h2 class="section-heading reveal">A continuous loop</h2>
+  <div class="system-flow reveal">
+    <div class="flow-node">
+      <p class="node-label">Origin</p>
+      <p class="node-title">Sugarcane</p>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">
+      <p class="node-label">Designed</p>
+      <p class="node-title">Product</p>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">
+      <p class="node-label">Social</p>
+      <p class="node-title">Interaction</p>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">
+      <p class="node-label">Public</p>
+      <p class="node-title">Space</p>
+    </div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-node">
+      <p class="node-label">Shared</p>
+      <p class="node-title">Community</p>
+    </div>
+  </div>
+  <p class="system-desc reveal">The system operates as a continuous loop between natural origin, designed objects, and collective spatial activation.</p>
+</section>
 
+<!-- ══ FOOTER ══ -->
+<footer id="footer-nav">
+  <a href="index.html" class="fnav-back">← All Work</a>
+  <p class="fnav-sig">Raw Cane</p>
+</footer>
+
+<script>
+/* cursor */
+const dot=document.getElementById('cursor-dot');
+const ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+(function lerp(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(lerp);})();
+document.querySelectorAll('a').forEach(a=>{a.addEventListener('mouseenter',()=>ring.classList.add('grow'));a.addEventListener('mouseleave',()=>ring.classList.remove('grow'));});
+
+/* progress bar */
+window.addEventListener('scroll',()=>{
+  const p=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  document.getElementById('progress-bar').style.width=p+'%';
+});
+
+/* GSAP reveals */
+gsap.registerPlugin(ScrollTrigger);
+document.querySelectorAll('.reveal').forEach(el=>{
+  gsap.to(el,{
+    opacity:1,y:0,duration:.9,ease:'power3.out',
+    scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}
+  });
+});
+</script>
 </body>
 </html>
