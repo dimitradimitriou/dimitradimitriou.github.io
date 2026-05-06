@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Dimitra Dimitriou</title>
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,300,500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=ciclo@400,700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --green: #1a3a2a;
+    --green-mid: #2d5c42;
+    --green-light: #4a8c64;
+    --beige: #e8e0d0;
+    --beige-dim: #c4b99a;
+    --gold: #c8a96e;
+    --signal: #7ecba1;
+    --bg: #0a0f0d;
+    --font-display: 'Ciclo', Georgia, serif;
+    --font-body: 'Switzer', system-ui, sans-serif;
+  }
+
+  html, body {
+    width: 100%;
+    background: var(--bg);
+    color: var(--beige);
+    font-family: var(--font-body);
+    font-weight: 300;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* NOISE */
+  #noise {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0.026;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px;
+  }
+
+  /* GLITCH */
+  #glitch-line {
+    position: fixed;
+    left: 0; width: 100%; height: 1px;
+    background: var(--signal);
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: screen;
+  }
+
+  /* CURSOR */
+  #cursor {
+    position: fixed;
+    width: 6px; height: 6px;
+    background: var(--signal);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1000;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: screen;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border: 1px solid rgba(126, 203, 161, 0.35);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 999;
+    transform: translate(-50%, -50%);
+    transition: width 0.28s, height 0.28s, border-color 0.3s;
+  }
+  #cursor-ring.grow { width: 54px; height: 54px; border-color: rgba(126,203,161,0.65); }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 3rem 3.5rem;
+    pointer-events: none;
+  }
+
+  #logo {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: rgba(232,228,220,.28);
+    text-transform: uppercase;
+    text-decoration: none;
+    pointer-events: all;
+    cursor: none;
+    opacity: 0;
+  }
+
+  #nav-links {
+    display: flex;
+    gap: 2.5rem;
+    opacity: 0;
+  }
+
+  #nav-links a {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: rgba(232,228,220,.28);
+    text-decoration: none;
+    text-transform: uppercase;
+    pointer-events: all;
+    transition: color 0.3s;
+    cursor: none;
+  }
+
+  #nav-links a:hover { color: var(--signal); }
+  #nav-links a.active { color: rgba(232,228,220,.7); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+    padding: 10rem 3.5rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 2rem;
+    z-index: 2;
+  }
+
+  #signal-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.28em;
+    color: rgba(126, 203, 161, 0.45);
+    text-transform: uppercase;
+    opacity: 0;
+    margin-bottom: 1.8rem;
+    display: block;
+  }
+
+  .hero-name {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 400;
+    color: var(--beige);
+    line-height: 1.0;
+    letter-spacing: -0.01em;
+    opacity: 0;
+  }
+
+  .hero-name em {
+    font-style: normal;
+    color: var(--signal);
+  }
+
+  .hero-descriptor {
+    font-family: var(--font-body);
+    font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+    font-weight: 300;
+    color: rgba(232,228,220,.35);
+    letter-spacing: 0.08em;
+    margin-top: 1.5rem;
+    opacity: 0;
+    max-width: 340px;
+    line-height: 1.7;
+  }
+
+  .hero-right {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-img-wrap {
+    width: 82%;
+    max-width: 440px;
+    opacity: 0;
+    position: relative;
+  }
+
+  .hero-img-wrap img {
+    width: 100%;
+    display: block;
+    object-fit: contain;
+    object-position: bottom;
+    mix-blend-mode: luminosity;
+    filter: brightness(0.88) contrast(1.05);
+    transition: filter 0.6s, mix-blend-mode 0.6s;
+  }
+
+  .hero-img-wrap:hover img {
+    mix-blend-mode: normal;
+    filter: brightness(1) contrast(1);
+  }
+
+  .hero-img-wrap::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60%; height: 40%;
+    background: radial-gradient(ellipse at center bottom, rgba(78,140,100,0.18) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* RULE */
+  .rule {
+    width: calc(100% - 7rem);
+    margin: 0 3.5rem;
+    height: 1px;
+    background: rgba(126,203,161,0.12);
+  }
+
+  /* ABOUT */
+  .about {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 4rem;
+    padding: 6rem 3.5rem;
+  }
+
+  .section-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    color: rgba(126, 203, 161, 0.45);
+    text-transform: uppercase;
+    padding-top: 0.15rem;
+  }
+
+  .about-body p {
+    font-size: clamp(0.95rem, 1.5vw, 1.08rem);
+    font-weight: 300;
+    line-height: 1.9;
+    color: rgba(232,228,220,.65);
+    max-width: 560px;
+  }
+
+  .about-body p + p { margin-top: 1.6rem; }
+
+  .about-body strong {
+    color: var(--beige);
+    font-weight: 400;
+  }
+
+  .signal-word {
+    color: var(--signal);
+    font-weight: 400;
+  }
+
+  /* DISCIPLINES */
+  .disciplines {
+    padding: 5rem 3.5rem;
+    border-top: 1px solid rgba(126,203,161,0.12);
+  }
+
+  .disciplines-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4rem;
+  }
+
+  .disciplines-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    color: var(--beige);
+    line-height: 1.05;
+  }
+
+  .disciplines-title em {
+    font-style: normal;
+    color: var(--signal);
+  }
+
+  .disc-count {
+    font-family: var(--font-body);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: rgba(126,203,161,0.4);
+    text-transform: uppercase;
+  }
+
+  .disc-list {
+    list-style: none;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .disc-item {
+    display: grid;
+    grid-template-columns: 3rem 1fr auto;
+    align-items: center;
+    gap: 2rem;
+    padding: 1.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.25s;
+    cursor: none;
+  }
+
+  .disc-item:hover { background: rgba(126,203,161,0.03); }
+  .disc-item:hover .disc-name { color: var(--beige); }
+  .disc-item:hover .disc-dot { background: var(--signal); transform: scale(1.8); }
+
+  .disc-num {
+    font-family: var(--font-body);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(126,203,161,0.3);
+  }
+
+  .disc-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .disc-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: rgba(126,203,161,0.3);
+    flex-shrink: 0;
+    transition: background 0.3s, transform 0.3s;
+  }
+
+  .disc-name {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 2.5vw, 1.9rem);
+    color: rgba(232,228,220,.75);
+    transition: color 0.3s;
+  }
+
+  .disc-tag {
+    font-family: var(--font-body);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(126,203,161,0.4);
+  }
+
+  /* CONTACT */
+  .contact {
+    padding: 6rem 3.5rem;
+    border-top: 1px solid rgba(126,203,161,0.12);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: end;
+  }
+
+  .contact-headline {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    color: var(--beige);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+  }
+
+  .contact-headline em {
+    font-style: normal;
+    color: var(--signal);
+  }
+
+  .contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .contact-group-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(126,203,161,0.45);
+    margin-bottom: 0.5rem;
+  }
+
+  .contact-link {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: rgba(232,228,220,.65);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(232,228,220,.15);
+    padding-bottom: 0.2rem;
+    transition: color 0.3s, border-color 0.3s;
+    cursor: none;
+    display: inline-block;
+  }
+
+  .contact-link:hover {
+    color: var(--signal);
+    border-color: rgba(126,203,161,0.4);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem 3.5rem;
+    border-top: 1px solid rgba(126,203,161,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  footer span {
+    font-family: var(--font-body);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(232,228,220,.18);
+    text-transform: uppercase;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 2rem 1.5rem; }
+    .hero { grid-template-columns: 1fr; padding: 9rem 1.5rem 3rem; min-height: auto; }
+    .hero-right { margin-top: 2rem; }
+    .hero-img-wrap { width: 72%; margin: 0 auto; }
+    .rule { width: calc(100% - 3rem); margin: 0 1.5rem; }
+    .about { grid-template-columns: 1fr; gap: 1.2rem; padding: 4rem 1.5rem; }
+    .disciplines { padding: 4rem 1.5rem; }
+    .disc-item { grid-template-columns: 2.5rem 1fr; }
+    .disc-tag { display: none; }
+    .contact { grid-template-columns: 1fr; gap: 2.5rem; padding: 4rem 1.5rem; }
+    footer { padding: 1.5rem; flex-direction: column; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="noise"></div>
+<div id="glitch-line"></div>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" id="logo">Dimitra Dimitriou</a>
+  <div id="nav-links">
+    <a href="work-3.html">Work</a>
+    <a href="about.html" class="active">About</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <span id="signal-label">About — signal active</span>
+    <h1 class="hero-name" id="hero-name">
+      Who's<br>that<br><em>girl?</em>
+    </h1>
+    <p class="hero-descriptor" id="hero-desc">
+      Multidisciplinary designer &amp; operations leader — turning the invisible into the experiential.
+    </p>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-wrap" id="hero-img">
+      <img src="fuchsia_suit_2.png" alt="Dimitra Dimitriou" />
+    </div>
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<!-- ABOUT -->
+<section class="about">
+  <p class="section-label">Background</p>
+  <div class="about-body">
+    <p>
+      I'm <strong>Dimitra</strong>, a multidisciplinary designer and operations leader who turns the <span class="signal-word">invisible into the experiential</span>. With a <strong>10-year background in F&amp;B management</strong>, I apply systems thinking and sensory design to translate complex, intangible inputs — from service systems to neural data — into brand identities, spatial environments, and digital experiences that people can feel.
+    </p>
+    <p>
+      My work sits at the intersection of <strong>strategy, aesthetics, and lived experience</strong>. I believe design is not decoration — it is the architecture of how people move through the world, what they feel in a space, and what they carry long after they've left.
+    </p>
+  </div>
+</section>
+
+<!-- DISCIPLINES -->
+<section class="disciplines">
+  <div class="disciplines-header">
+    <h2 class="disciplines-title">What I <em>do</em></h2>
+    <span class="disc-count">06 disciplines</span>
+  </div>
+  <ul class="disc-list">
+    <li class="disc-item">
+      <span class="disc-num">01</span>
+      <div class="disc-name-wrap">
+        <span class="disc-dot"></span>
+        <span class="disc-name">Branding, Packaging &amp; Product</span>
+      </div>
+      <span class="disc-tag">Identity / Objects</span>
+    </li>
+    <li class="disc-item">
+      <span class="disc-num">02</span>
+      <div class="disc-name-wrap">
+        <span class="disc-dot"></span>
+        <span class="disc-name">UX / UI Design</span>
+      </div>
+      <span class="disc-tag">Digital Interfaces</span>
+    </li>
+    <li class="disc-item">
+      <span class="disc-num">03</span>
+      <div class="disc-name-wrap">
+        <span class="disc-dot"></span>
+        <span class="disc-name">Spatial Design</span>
+      </div>
+      <span class="disc-tag">Environments</span>
+    </li>
+    <li class="disc-item">
+      <span class="disc-num">04</span>
+      <div class="disc-name-wrap">
+        <span class="disc-dot"></span>
+        <span class="disc-name">Print Media</span>
+      </div>
+      <span class="disc-tag">Editorial / Print</span>
+    </li>
+    <li class="disc-item">
+      <span class="disc-num">05</span>
+      <div class="disc-name-wrap">
+        <span class="disc-dot"></span>
+        <span class="disc-name">Motion Graphics</span>
+      </div>
+      <span class="disc-tag">Animation / Film</span>
+    </li>
+    <li class="disc-item">
+      <span class="disc-num">06</span>
+      <div class="disc-name-wrap">
+        <span class="disc-dot"></span>
+        <span class="disc-name">Operations &amp; Systems</span>
+      </div>
+      <span class="disc-tag">F&amp;B / Strategy</span>
+    </li>
+  </ul>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <h2 class="contact-headline">Let's make<br>something<br><em>real.</em></h2>
+  <div class="contact-details">
+    <div class="contact-group">
+      <p class="contact-group-label">E-mail</p>
+      <a href="mailto:dimitrad312@gmail.com" class="contact-link">dimitrad312@gmail.com</a>
+    </div>
+    <div class="contact-group">
+      <p class="contact-group-label">Mobile</p>
+      <a href="tel:+447456171433" class="contact-link">+44 7456 171 433</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2025 Dimitra Dimitriou</span>
+  <span>Multidisciplinary Designer — London</span>
+</footer>
+
+<script>
+  // CURSOR
+  const cursorDot  = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursor-ring');
+  let cx = innerWidth/2, cy = innerHeight/2, rx = cx, ry = cy;
+
+  window.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
+
+  (function cursorLoop() {
+    requestAnimationFrame(cursorLoop);
+    rx += (cx - rx) * 0.11;
+    ry += (cy - ry) * 0.11;
+    cursorDot.style.left  = cx + 'px';
+    cursorDot.style.top   = cy + 'px';
+    cursorRing.style.left = rx + 'px';
+    cursorRing.style.top  = ry + 'px';
+  })();
+
+  document.querySelectorAll('a, .disc-item').forEach(el => {
+    el.addEventListener('mouseenter', () => cursorRing.classList.add('grow'));
+    el.addEventListener('mouseleave', () => cursorRing.classList.remove('grow'));
+  });
+
+  // GLITCH
+  const glitch = document.getElementById('glitch-line');
+  function fireGlitch() {
+    const y = Math.random() * window.innerHeight;
+    glitch.style.top = y + 'px';
+    gsap.fromTo(glitch, { opacity: 0.5, scaleX: 0 }, {
+      opacity: 0, scaleX: 1, duration: 0.3 + Math.random() * 0.4,
+      transformOrigin: 'left center', ease: 'power2.out'
+    });
+    setTimeout(fireGlitch, 2500 + Math.random() * 4000);
+  }
+  setTimeout(fireGlitch, 3000);
+
+  // GSAP INTRO
+  const tl = gsap.timeline({ delay: 0.3 });
+
+  tl.to('#logo',         { opacity: 1, duration: 1, ease: 'power2.out' }, 0.6)
+    .to('#nav-links',    { opacity: 1, duration: 1, ease: 'power2.out' }, 0.8)
+    .to('#signal-label', { opacity: 1, duration: 1.2, ease: 'power3.out' }, 0.2)
+    .fromTo('#hero-name',
+      { opacity: 0, y: 30, filter: 'blur(12px)' },
+      { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.8, ease: 'power3.out' }, 0.5)
+    .to('#hero-desc',    { opacity: 1, duration: 1.2, ease: 'power2.out' }, 1.4)
+    .fromTo('#hero-img',
+      { opacity: 0, y: 40 },
+      { opacity: 1, y: 0, duration: 1.6, ease: 'power3.out' }, 0.7);
+
+  gsap.to('#signal-label', {
+    opacity: 0.3, duration: 2, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 3
+  });
+
+  // SCROLL REVEAL
+  const reveals = document.querySelectorAll('.about, .disciplines, .contact, footer');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        gsap.fromTo(entry.target,
+          { opacity: 0, y: 32 },
+          { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }
+        );
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  reveals.forEach(el => { el.style.opacity = 0; observer.observe(el); });
+</script>
+</body>
+</html>
