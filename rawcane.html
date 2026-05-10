@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,8 +55,18 @@ body{background:var(--bg);color:var(--cream);font-family:var(--font-body);font-w
 
 /* FORM EXPLORATION */
 #form{background:#0a0c08;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:3rem;}
-.form-grid img{width:100%;display:block;border-radius:4px;filter:grayscale(1) contrast(1.4) brightness(1.15);mix-blend-mode:screen;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem;margin-top:3rem;}
+.form-grid img{
+  width:100%;
+  display:block;
+  border-radius:4px;
+  filter:grayscale(1) contrast(1.4) brightness(1.15);
+  mix-blend-mode:screen;
+}
+/* Make the 5th image (last child in a 3-col grid) span to centre */
+.form-grid img:last-child:nth-child(3n+2){
+  grid-column: 2 / 3;
+}
 
 /* SYSTEM RESPONSE */
 #sysresponse{background:linear-gradient(180deg,#0a0c08,#0f1a0f);}
@@ -103,6 +112,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:500;op
   .hero-inner{padding:0 2.5rem 5rem;}
   .hero-year{right:2.5rem;}
   .two-col,.overview-images,.form-grid,.process-layout,.public-grid,.process-images{grid-template-columns:1fr;}
+  .form-grid img:last-child:nth-child(3n+2){grid-column:auto;}
   .process-vertical{writing-mode:horizontal-tb;transform:none;margin-bottom:2rem;}
   #footer-nav{padding:4rem 2.5rem 5rem;flex-direction:column;gap:2rem;}
   .loop-container{flex-wrap:wrap;}
@@ -160,10 +170,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:500;op
   <p class="section-label reveal">Form Exploration</p>
   <p class="section-body reveal">Form exploration through pencil sketches as well as Illustrator to create organic but yet industrial form.</p>
   <div class="form-grid">
-    <img src="IMG_1561.png" alt="Sketch 1" class="reveal"/>
-    <img src="IMG_1558.png" alt="Sketch 2" class="reveal"/>
-    <img src="IMG_1563.png" alt="Sketch 3" class="reveal"/>
-    <img src="IMG_1562.png" alt="Sketch 4" class="reveal"/>
+    <img src="RC 3926.png" alt="Main bottle and sachet sketches" class="reveal"/>
+    <img src="RC 1239.png" alt="Spatial installation sketch" class="reveal"/>
+    <img src="RC 1240.png" alt="Collective space layout sketch" class="reveal"/>
+    <img src="RC 4006.png" alt="Sachet form sketch" class="reveal"/>
+    <img src="RC 3851.png" alt="Logo exploration sketches" class="reveal"/>
   </div>
 </section>
 
