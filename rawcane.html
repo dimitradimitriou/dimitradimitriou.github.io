@@ -60,8 +60,15 @@ body{background:var(--bg);color:var(--cream);font-family:var(--font-body);font-w
   width:100%;
   display:block;
   border-radius:4px;
-  filter:grayscale(1) contrast(1.4) brightness(1.15);
-  mix-blend-mode:screen;
+  filter:grayscale(1) contrast(1.1) brightness(0.85);
+  mix-blend-mode:normal;
+}
+/* Last two images — same fixed height, landscape */
+.form-grid img:nth-child(4),
+.form-grid img:nth-child(5){
+  height:340px;
+  object-fit:cover;
+  object-position:center top;
 }
 /* Make the 5th image (last child in a 3-col grid) span to centre */
 .form-grid img:last-child:nth-child(3n+2){
