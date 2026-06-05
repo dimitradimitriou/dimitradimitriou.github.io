@@ -3,143 +3,207 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tim Burton AR — Dimitra Dimitriou</title>
+  <title>AR Experience — Dimitra Dimitriou</title>
+
+  <!-- Fonts matching your site -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- Ciclo is self-hosted; closest Google fallback for display: using Cinzel as placeholder
+       but we'll @font-face Ciclo the same way your site does via the CDN pattern -->
+  <link href="https://fonts.googleapis.com/css2?family=Switzer:wght@300;400;500&display=swap" rel="stylesheet" />
+
   <style>
+    /* ── Ciclo via same pattern as your main site ── */
+    @font-face {
+      font-family: 'Ciclo';
+      src: url('https://dimitradimitriou.github.io/Ciclo-Regular.woff2') format('woff2'),
+           url('https://dimitradimitriou.github.io/Ciclo-Regular.woff')  format('woff');
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    /* ── Tokens — exact palette from your site ── */
     :root {
-      --bg:       #080808;
-      --surface:  #0e0e0e;
-      --border:   #1e1e1e;
-      --accent:   #c8a96e;   /* dusty gold — Burton's sepia warmth */
-      --accent2:  #6b3fa0;   /* deep violet — Burton's gothic undertone */
-      --text:     #e8e0d5;
-      --muted:    #5a5248;
-      --scratch:  rgba(200,169,110,0.04);
+      --bg:       #0a0f0d;
+      --surface:  #0f1410;
+      --border:   #1a1f1c;
+      --green:    #7ecba1;   /* signal green */
+      --text:     #e8e0d0;   /* beige */
+      --muted:    #4a5248;
+      --dim:      #2a302d;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-family: 'Switzer', -apple-system, sans-serif;
+      font-weight: 300;
       min-height: 100vh;
       overflow-x: hidden;
+      cursor: none;
     }
 
-    /* ── Film-grain overlay ── */
+    /* ── Custom cursor ── */
+    .cursor {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: var(--green);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+      mix-blend-mode: difference;
+    }
+
+    .cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(126,203,161,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+    }
+
+    body.cursor-hover .cursor       { width: 16px; height: 16px; }
+    body.cursor-hover .cursor-ring  { width: 52px; height: 52px; border-color: rgba(126,203,161,0.7); }
+
+    /* ── Film grain ── */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
       pointer-events: none;
-      z-index: 9999;
-      opacity: 0.6;
+      z-index: 9990;
+      opacity: 0.55;
     }
 
     /* ── Nav ── */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
-      z-index: 100;
-      padding: 1.6rem 3rem;
+      z-index: 200;
+      padding: 1.8rem 3rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border);
-      background: rgba(8,8,8,0.88);
-      backdrop-filter: blur(12px);
+      background: rgba(10,15,13,0.9);
+      backdrop-filter: blur(14px);
     }
 
     .nav-back {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 0.78rem;
-      letter-spacing: 0.18em;
+      font-family: 'Switzer', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 400;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--muted);
       text-decoration: none;
       transition: color 0.3s;
     }
-    .nav-back:hover { color: var(--accent); }
+    .nav-back:hover { color: var(--green); }
 
-    .nav-title {
-      font-family: 'Cinzel', serif;
-      font-size: 0.7rem;
-      letter-spacing: 0.3em;
+    .nav-label {
+      font-family: 'Switzer', sans-serif;
+      font-size: 0.66rem;
+      letter-spacing: 0.28em;
       text-transform: uppercase;
       color: var(--muted);
     }
 
     /* ── Hero ── */
     .hero {
-      padding: 14rem 3rem 5rem;
-      max-width: 900px;
+      padding: 16rem 3rem 6rem;
+      max-width: 860px;
       margin: 0 auto;
-      text-align: center;
-      position: relative;
+      text-align: left;
     }
 
     .hero-eyebrow {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 0.72rem;
-      letter-spacing: 0.35em;
+      font-family: 'Switzer', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 400;
+      letter-spacing: 0.3em;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1.8rem;
+      color: var(--green);
+      margin-bottom: 2.2rem;
       opacity: 0;
-      animation: fadeUp 1s ease 0.2s forwards;
+      animation: fadeUp 0.9s ease 0.15s forwards;
+    }
+
+    .hero-index {
+      font-family: 'Switzer', sans-serif;
+      font-size: 0.66rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.25s forwards;
     }
 
     .hero-title {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(2.6rem, 7vw, 5.5rem);
+      font-family: 'Ciclo', 'Georgia', serif;
+      font-size: clamp(3rem, 8vw, 6.5rem);
       font-weight: 400;
-      line-height: 1.05;
-      letter-spacing: 0.04em;
+      line-height: 1.0;
+      letter-spacing: -0.01em;
       color: var(--text);
-      margin-bottom: 1.2rem;
+      margin-bottom: 2rem;
       opacity: 0;
-      animation: fadeUp 1s ease 0.4s forwards;
+      animation: fadeUp 0.9s ease 0.35s forwards;
     }
 
     .hero-title em {
-      font-family: 'Cormorant Garamond', serif;
       font-style: italic;
-      font-weight: 300;
-      color: var(--accent);
+      color: var(--green);
     }
 
-    .hero-sub {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.1rem;
-      font-style: italic;
+    .hero-desc {
+      font-family: 'Switzer', sans-serif;
+      font-size: 0.9rem;
       font-weight: 300;
       color: var(--muted);
       letter-spacing: 0.06em;
-      margin-bottom: 3rem;
+      line-height: 1.7;
+      max-width: 380px;
       opacity: 0;
-      animation: fadeUp 1s ease 0.6s forwards;
+      animation: fadeUp 0.9s ease 0.5s forwards;
     }
 
     .hero-rule {
       width: 1px;
-      height: 60px;
-      background: linear-gradient(to bottom, var(--accent), transparent);
-      margin: 0 auto;
+      height: 72px;
+      background: linear-gradient(to bottom, var(--green), transparent);
+      margin-top: 3.5rem;
       opacity: 0;
-      animation: fadeUp 1s ease 0.9s forwards;
+      animation: fadeUp 0.9s ease 0.7s forwards;
     }
 
     /* ── Grid ── */
     .grid-section {
-      padding: 4rem 2rem 8rem;
-      max-width: 1300px;
+      padding: 5rem 3rem 10rem;
+      max-width: 1400px;
       margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'Switzer', sans-serif;
+      font-size: 0.66rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.8s forwards;
     }
 
     .grid {
@@ -151,7 +215,7 @@
     /* ── Card ── */
     .card {
       position: relative;
-      cursor: pointer;
+      cursor: none;
       overflow: hidden;
       background: var(--surface);
     }
@@ -165,16 +229,20 @@
       display: block;
       width: 100%;
       height: auto;
+      transition: transform 0.7s ease;
     }
+
+    .card:hover .poster-img { transform: scale(1.03); }
+    .card.playing .poster-img { transform: scale(1); }
 
     .card-video {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: fill;
+      object-fit: cover;
       opacity: 0;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.6s ease;
     }
 
     .card.playing .card-video { opacity: 1; }
@@ -186,13 +254,13 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 1.5rem;
+      padding: 1.6rem;
       background: linear-gradient(
         to bottom,
-        rgba(0,0,0,0.5) 0%,
-        transparent 35%,
+        rgba(10,15,13,0.55) 0%,
+        transparent 30%,
         transparent 55%,
-        rgba(0,0,0,0.75) 100%
+        rgba(10,15,13,0.8) 100%
       );
       transition: opacity 0.4s ease;
       z-index: 2;
@@ -201,29 +269,29 @@
     .card.playing .card-overlay { opacity: 0; pointer-events: none; }
 
     .card-number {
-      font-family: 'Cinzel', serif;
+      font-family: 'Switzer', sans-serif;
       font-size: 0.6rem;
       letter-spacing: 0.3em;
-      color: rgba(200,169,110,0.6);
+      color: rgba(126,203,161,0.55);
     }
 
-    .card-bottom { display: flex; flex-direction: column; gap: 0.4rem; }
+    .card-bottom { display: flex; flex-direction: column; gap: 0.3rem; }
 
     .card-name {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(0.9rem, 1.6vw, 1.25rem);
+      font-family: 'Ciclo', Georgia, serif;
+      font-size: clamp(1rem, 1.8vw, 1.4rem);
       font-weight: 400;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.02em;
       color: var(--text);
     }
 
     .card-tag {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic;
-      font-size: 0.8rem;
-      letter-spacing: 0.1em;
-      color: var(--accent);
-      opacity: 0.8;
+      font-family: 'Switzer', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green);
+      opacity: 0.75;
     }
 
     /* ── Play button ── */
@@ -236,32 +304,34 @@
       z-index: 3;
       pointer-events: none;
       transition: opacity 0.4s;
+      opacity: 0;
     }
 
+    .card:hover .play-ring { opacity: 1; }
     .card.playing .play-ring { opacity: 0; }
 
     .play-circle {
-      width: 62px;
-      height: 62px;
+      width: 58px;
+      height: 58px;
       border-radius: 50%;
-      border: 1px solid rgba(200,169,110,0.5);
+      border: 1px solid rgba(126,203,161,0.5);
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(8,8,8,0.5);
-      backdrop-filter: blur(4px);
+      background: rgba(10,15,13,0.45);
+      backdrop-filter: blur(6px);
       transition: transform 0.3s, border-color 0.3s;
     }
 
     .card:hover .play-circle {
-      transform: scale(1.1);
-      border-color: var(--accent);
+      transform: scale(1.08);
+      border-color: var(--green);
     }
 
     .play-circle svg {
-      width: 20px;
-      height: 20px;
-      fill: var(--accent);
+      width: 18px;
+      height: 18px;
+      fill: var(--green);
       margin-left: 3px;
     }
 
@@ -281,21 +351,21 @@
     .card.playing:hover .pause-hint { opacity: 1; pointer-events: auto; }
 
     .pause-circle {
-      width: 62px;
-      height: 62px;
+      width: 58px;
+      height: 58px;
       border-radius: 50%;
-      border: 1px solid rgba(200,169,110,0.4);
+      border: 1px solid rgba(126,203,161,0.4);
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(8,8,8,0.55);
-      backdrop-filter: blur(4px);
+      background: rgba(10,15,13,0.5);
+      backdrop-filter: blur(6px);
     }
 
     .pause-circle svg {
-      width: 18px;
-      height: 18px;
-      fill: var(--accent);
+      width: 16px;
+      height: 16px;
+      fill: var(--green);
     }
 
     /* ── Footer ── */
@@ -308,51 +378,60 @@
     }
 
     .footer-left {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 0.72rem;
+      font-family: 'Switzer', sans-serif;
+      font-size: 0.68rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--muted);
     }
 
     .footer-right {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic;
-      font-size: 0.85rem;
+      font-family: 'Switzer', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
       color: var(--muted);
     }
 
     /* ── Animations ── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
+      from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
     /* ── Responsive ── */
     @media (max-width: 900px) {
       .grid { grid-template-columns: 1fr; gap: 2px; }
-      nav { padding: 1.2rem 1.5rem; }
+      nav { padding: 1.4rem 1.5rem; }
       .hero { padding: 10rem 1.5rem 4rem; }
-      .grid-section { padding: 3rem 1rem 5rem; }
+      .grid-section { padding: 3rem 1.5rem 6rem; }
       footer { flex-direction: column; gap: 1rem; text-align: center; }
+      body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
     }
   </style>
 </head>
 <body>
 
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
 <nav>
   <a class="nav-back" href="https://dimitradimitriou.github.io/work-3.html">← All Work</a>
-  <span class="nav-title">Dimitra Dimitriou</span>
+  <span class="nav-label">Dimitra Dimitriou</span>
 </nav>
 
 <section class="hero">
-  <p class="hero-eyebrow">AR Experience — Motion Design</p>
-  <h1 class="hero-title">Through the <em>Looking Glass</em></h1>
-  <p class="hero-sub">Three worlds. One frame. Tap to enter.</p>
+  <p class="hero-eyebrow">05 — AR Experience · Motion Design</p>
+  <p class="hero-index">Augmented Reality</p>
+  <h1 class="hero-title">Through the<br><em>Looking Glass</em></h1>
+  <p class="hero-desc">Three Tim Burton worlds. One frame. Tap to enter each dimension.</p>
   <div class="hero-rule"></div>
 </section>
 
 <section class="grid-section">
+  <p class="section-label">Selected works — 2025</p>
   <div class="grid" id="gallery"></div>
 </section>
 
@@ -362,6 +441,29 @@
 </footer>
 
 <script>
+  /* ── Cursor ── */
+  const cursor     = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursorRing');
+  let mx = -100, my = -100, rx = -100, ry = -100;
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  (function animCursor() {
+    rx += (mx - rx) * 0.14;
+    ry += (my - ry) * 0.14;
+    cursor.style.left     = mx + 'px';
+    cursor.style.top      = my + 'px';
+    cursorRing.style.left = rx + 'px';
+    cursorRing.style.top  = ry + 'px';
+    requestAnimationFrame(animCursor);
+  })();
+
+  document.querySelectorAll('a, .card').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+
+  /* ── Gallery ── */
   const projects = [
     {
       number: "01",
