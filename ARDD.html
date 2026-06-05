@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tim Burton AR — Dimitra Dimitriou</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #080808;
+      --surface:  #0e0e0e;
+      --border:   #1e1e1e;
+      --accent:   #c8a96e;   /* dusty gold — Burton's sepia warmth */
+      --accent2:  #6b3fa0;   /* deep violet — Burton's gothic undertone */
+      --text:     #e8e0d5;
+      --muted:    #5a5248;
+      --scratch:  rgba(200,169,110,0.04);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Film-grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.6rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,8,8,0.88);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-back {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-back:hover { color: var(--accent); }
+
+    .nav-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 14rem 3rem 5rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.8rem;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2.6rem, 7vw, 5.5rem);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.4s forwards;
+    }
+
+    .hero-title em {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.6s forwards;
+    }
+
+    .hero-rule {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      margin: 0 auto;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.9s forwards;
+    }
+
+    /* ── Grid ── */
+    .grid-section {
+      padding: 4rem 2rem 8rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    /* ── Card ── */
+    .card {
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+    }
+
+    .poster-img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .card-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .card.playing .card-video { opacity: 1; }
+
+    /* ── Overlay ── */
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.5rem;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.5) 0%,
+        transparent 35%,
+        transparent 55%,
+        rgba(0,0,0,0.75) 100%
+      );
+      transition: opacity 0.4s ease;
+      z-index: 2;
+    }
+
+    .card.playing .card-overlay { opacity: 0; pointer-events: none; }
+
+    .card-number {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: rgba(200,169,110,0.6);
+    }
+
+    .card-bottom { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .card-name {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.9rem, 1.6vw, 1.25rem);
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      color: var(--text);
+    }
+
+    .card-tag {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      opacity: 0.8;
+    }
+
+    /* ── Play button ── */
+    .play-ring {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      pointer-events: none;
+      transition: opacity 0.4s;
+    }
+
+    .card.playing .play-ring { opacity: 0; }
+
+    .play-circle {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      border: 1px solid rgba(200,169,110,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8,8,8,0.5);
+      backdrop-filter: blur(4px);
+      transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .card:hover .play-circle {
+      transform: scale(1.1);
+      border-color: var(--accent);
+    }
+
+    .play-circle svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--accent);
+      margin-left: 3px;
+    }
+
+    /* ── Pause hint ── */
+    .pause-hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 4;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .card.playing:hover .pause-hint { opacity: 1; pointer-events: auto; }
+
+    .pause-circle {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      border: 1px solid rgba(200,169,110,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8,8,8,0.55);
+      backdrop-filter: blur(4px);
+    }
+
+    .pause-circle svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--accent);
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-left {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .footer-right {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; gap: 2px; }
+      nav { padding: 1.2rem 1.5rem; }
+      .hero { padding: 10rem 1.5rem 4rem; }
+      .grid-section { padding: 3rem 1rem 5rem; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="https://dimitradimitriou.github.io/work-3.html">← All Work</a>
+  <span class="nav-title">Dimitra Dimitriou</span>
+</nav>
+
+<section class="hero">
+  <p class="hero-eyebrow">AR Experience — Motion Design</p>
+  <h1 class="hero-title">Through the <em>Looking Glass</em></h1>
+  <p class="hero-sub">Three worlds. One frame. Tap to enter.</p>
+  <div class="hero-rule"></div>
+</section>
+
+<section class="grid-section">
+  <div class="grid" id="gallery"></div>
+</section>
+
+<footer>
+  <span class="footer-left">© 2026 Dimitra Dimitriou</span>
+  <span class="footer-right">Augmented Reality — Motion Design</span>
+</footer>
+
+<script>
+  const projects = [
+    {
+      number: "01",
+      name: "Alice in Wonderland",
+      tag: "Through the Looking Glass",
+      poster: "AliceDD.png",
+      video:  "Dimitra_Dimitriou_Alice_AR.mp4"
+    },
+    {
+      number: "02",
+      name: "Beetlejuice",
+      tag: "It's Showtime",
+      poster: "BeetlejuiceDD.png",
+      video:  "Dimitra_Dimitriou_Beetlejuice_AR.mp4"
+    },
+    {
+      number: "03",
+      name: "Jack Skellington",
+      tag: "The Nightmare Before Christmas",
+      poster: "JackDD.png",
+      video:  "Dimitra_Dimitriou_JSkellinghton_AR.mp4"
+    }
+  ];
+
+  const gallery = document.getElementById('gallery');
+
+  projects.forEach(({ number, name, tag, poster, video }) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML = `
+      <div class="card-inner">
+        <img class="poster-img" src="${poster}" alt="${name}" loading="lazy" />
+        <video class="card-video" src="${video}" loop playsinline preload="none"></video>
+
+        <div class="card-overlay">
+          <span class="card-number">${number}</span>
+          <div class="card-bottom">
+            <div class="card-name">${name}</div>
+            <div class="card-tag">${tag}</div>
+          </div>
+        </div>
+
+        <div class="play-ring">
+          <div class="play-circle">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+
+        <div class="pause-hint">
+          <div class="pause-circle">
+            <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const vid = card.querySelector('video');
+
+    card.addEventListener('click', () => {
+      const isPlaying = card.classList.contains('playing');
+
+      document.querySelectorAll('.card.playing').forEach(c => {
+        c.classList.remove('playing');
+        c.querySelector('video').pause();
+      });
+
+      if (!isPlaying) {
+        card.classList.add('playing');
+        vid.play();
+      }
+    });
+
+    vid.addEventListener('ended', () => card.classList.remove('playing'));
+
+    gallery.appendChild(card);
+  });
+</script>
+
+</body>
+</html>
