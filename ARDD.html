@@ -235,7 +235,13 @@
     .card:hover .poster-img { transform: scale(1.03); }
     .card.playing .poster-img { transform: scale(1); }
 
+    /* raw video is never shown — canvas does the rendering */
     .card-video {
+      display: none;
+    }
+
+    /* canvas sits on top of the poster and renders keyed frames */
+    .card-canvas {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -243,9 +249,10 @@
       object-fit: cover;
       opacity: 0;
       transition: opacity 0.6s ease;
+      pointer-events: none;
     }
 
-    .card.playing .card-video { opacity: 1; }
+    .card.playing .card-canvas { opacity: 1; }
 
     /* ── Overlay ── */
     .card-overlay {
@@ -497,7 +504,8 @@
     card.innerHTML = `
       <div class="card-inner">
         <img class="poster-img" src="${poster}" alt="${name}" loading="lazy" />
-        <video class="card-video" src="${video}" loop playsinline preload="none"></video>
+        <video class="card-video" src="${video}" loop playsinline preload="none" crossorigin="anonymous"></video>
+        <canvas class="card-canvas"></canvas>
 
         <div class="card-overlay">
           <span class="card-number">${number}</span>
@@ -521,23 +529,78 @@
       </div>
     `;
 
-    const vid = card.querySelector('video');
+    const vid    = card.querySelector('video');
+    const canvas = card.querySelector('canvas');
+    const ctx    = canvas.getContext('2d', { willReadFrequently: true });
+    let   rafId  = null;
+
+    /* ── Size canvas to match video once metadata is known ── */
+    vid.addEventListener('loadedmetadata', () => {
+      canvas.width  = vid.videoWidth;
+      canvas.height = vid.videoHeight;
+    });
+
+    /* ── Chroma-key render loop ── */
+    function renderFrame() {
+      if (vid.paused || vid.ended) return;
+
+      /* Make sure canvas dimensions are set */
+      if (canvas.width !== vid.videoWidth && vid.videoWidth > 0) {
+        canvas.width  = vid.videoWidth;
+        canvas.height = vid.videoHeight;
+      }
+
+      ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
+
+      const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data  = frame.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+
+        /* Chroma-key: knock out pixels where green dominates clearly.
+           Threshold tuned for typical green-screen footage:
+           g must exceed both r and b by at least 40, and be reasonably bright. */
+        if (
+          g > 80 &&
+          g - r > 40 &&
+          g - b > 40
+        ) {
+          data[i + 3] = 0; /* fully transparent */
+        }
+      }
+
+      ctx.putImageData(frame, 0, 0);
+      rafId = requestAnimationFrame(renderFrame);
+    }
 
     card.addEventListener('click', () => {
       const isPlaying = card.classList.contains('playing');
 
+      /* Stop all other playing cards */
       document.querySelectorAll('.card.playing').forEach(c => {
         c.classList.remove('playing');
-        c.querySelector('video').pause();
+        const v = c.querySelector('video');
+        v.pause();
+        const rid = v._rafId;
+        if (rid) cancelAnimationFrame(rid);
       });
 
       if (!isPlaying) {
         card.classList.add('playing');
-        vid.play();
+        vid.play().then(() => {
+          rafId = requestAnimationFrame(renderFrame);
+          vid._rafId = rafId;
+        });
       }
     });
 
-    vid.addEventListener('ended', () => card.classList.remove('playing'));
+    vid.addEventListener('ended', () => {
+      card.classList.remove('playing');
+      cancelAnimationFrame(rafId);
+    });
 
     gallery.appendChild(card);
   });
