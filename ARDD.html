@@ -22,15 +22,25 @@
       font-style: normal;
     }
 
-    /* ── Tokens — exact palette from your site ── */
+    /* ── Tokens — AR cyan palette matching work-3 AR section ── */
     :root {
-      --bg:       #0a0f0d;
-      --surface:  #0f1410;
-      --border:   #1a1f1c;
-      --green:    #7ecba1;   /* signal green */
-      --text:     #e8e0d0;   /* beige */
-      --muted:    #4a5248;
-      --dim:      #2a302d;
+      --bg:       #040d12;
+      --surface:  #071318;
+      --border:   #0e2028;
+      --green:    #00d4ff;
+      --text:     #e8e0d0;
+      --muted:    #2a5060;
+      --dim:      #0d2530;
+    }
+
+    /* ── AR portal canvas ── */
+    #ar-portal-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -126,6 +136,8 @@
       max-width: 860px;
       margin: 0 auto;
       text-align: left;
+      position: relative;
+      z-index: 2;
     }
 
     .hero-eyebrow {
@@ -193,6 +205,8 @@
       padding: 5rem 3rem 10rem;
       max-width: 1400px;
       margin: 0 auto;
+      position: relative;
+      z-index: 2;
     }
 
     .section-label {
@@ -235,13 +249,7 @@
     .card:hover .poster-img { transform: scale(1.03); }
     .card.playing .poster-img { transform: scale(1); }
 
-    /* raw video is never shown — canvas does the rendering */
     .card-video {
-      display: none;
-    }
-
-    /* canvas sits on top of the poster and renders keyed frames */
-    .card-canvas {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -249,10 +257,9 @@
       object-fit: cover;
       opacity: 0;
       transition: opacity 0.6s ease;
-      pointer-events: none;
     }
 
-    .card.playing .card-canvas { opacity: 1; }
+    .card.playing .card-video { opacity: 1; }
 
     /* ── Overlay ── */
     .card-overlay {
@@ -382,6 +389,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative;
+      z-index: 2;
     }
 
     .footer-left {
@@ -423,6 +432,9 @@
 <!-- Custom cursor -->
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
+
+<!-- AR portal background canvas -->
+<canvas id="ar-portal-canvas"></canvas>
 
 <nav>
   <a class="nav-back" href="https://dimitradimitriou.github.io/work-3.html">← All Work</a>
@@ -504,8 +516,7 @@
     card.innerHTML = `
       <div class="card-inner">
         <img class="poster-img" src="${poster}" alt="${name}" loading="lazy" />
-        <video class="card-video" src="${video}" loop playsinline preload="none" crossorigin="anonymous"></video>
-        <canvas class="card-canvas"></canvas>
+        <video class="card-video" src="${video}" loop playsinline preload="none"></video>
 
         <div class="card-overlay">
           <span class="card-number">${number}</span>
@@ -529,82 +540,175 @@
       </div>
     `;
 
-    const vid    = card.querySelector('video');
-    const canvas = card.querySelector('canvas');
-    const ctx    = canvas.getContext('2d', { willReadFrequently: true });
-    let   rafId  = null;
-
-    /* ── Size canvas to match video once metadata is known ── */
-    vid.addEventListener('loadedmetadata', () => {
-      canvas.width  = vid.videoWidth;
-      canvas.height = vid.videoHeight;
-    });
-
-    /* ── Chroma-key render loop ── */
-    function renderFrame() {
-      if (vid.paused || vid.ended) return;
-
-      /* Make sure canvas dimensions are set */
-      if (canvas.width !== vid.videoWidth && vid.videoWidth > 0) {
-        canvas.width  = vid.videoWidth;
-        canvas.height = vid.videoHeight;
-      }
-
-      ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
-
-      const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data  = frame.data;
-
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-
-        /* Chroma-key: knock out pixels where green dominates clearly.
-           Threshold tuned for typical green-screen footage:
-           g must exceed both r and b by at least 40, and be reasonably bright. */
-        if (
-          g > 80 &&
-          g - r > 40 &&
-          g - b > 40
-        ) {
-          data[i + 3] = 0; /* fully transparent */
-        }
-      }
-
-      ctx.putImageData(frame, 0, 0);
-      rafId = requestAnimationFrame(renderFrame);
-    }
+    const vid = card.querySelector('video');
 
     card.addEventListener('click', () => {
       const isPlaying = card.classList.contains('playing');
 
-      /* Stop all other playing cards */
       document.querySelectorAll('.card.playing').forEach(c => {
         c.classList.remove('playing');
-        const v = c.querySelector('video');
-        v.pause();
-        const rid = v._rafId;
-        if (rid) cancelAnimationFrame(rid);
+        c.querySelector('video').pause();
       });
 
       if (!isPlaying) {
         card.classList.add('playing');
-        vid.play().then(() => {
-          rafId = requestAnimationFrame(renderFrame);
-          vid._rafId = rafId;
-        });
+        vid.play();
       }
     });
 
-    vid.addEventListener('ended', () => {
-      card.classList.remove('playing');
-      cancelAnimationFrame(rafId);
-    });
+    vid.addEventListener('ended', () => card.classList.remove('playing'));
 
     gallery.appendChild(card);
   });
 </script>
+<script>
+  /* ══════════════════════════════════
+     AR PORTAL CANVAS — viewfinder rings
+  ══════════════════════════════════ */
+  (()=>{
+    const canvas = document.getElementById('ar-portal-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H;
+
+    const resize = () => {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const RINGS = [
+      { rf: 0.38, spd:  0.18, op: 0.40, lw: 1.0, dash: [6,14],  phase: 0   },
+      { rf: 0.32, spd: -0.28, op: 0.28, lw: 0.7, dash: [3,22],  phase: 1.1 },
+      { rf: 0.26, spd:  0.42, op: 0.45, lw: 1.1, dash: [12,8],  phase: 0.5 },
+      { rf: 0.20, spd: -0.55, op: 0.25, lw: 0.6, dash: [2,18],  phase: 2.0 },
+      { rf: 0.14, spd:  0.70, op: 0.38, lw: 0.8, dash: [8,6],   phase: 0.8 },
+      { rf: 0.08, spd: -0.90, op: 0.50, lw: 0.5, dash: [4,10],  phase: 1.6 },
+      { rf: 0.44, spd:  0.06, op: 0.14, lw: 0.5, dash: [],      phase: 0   },
+    ];
+
+    const TICKS = 36;
+    const BRK   = 28;
+    let scanY   = 0;
+    let t       = 0;
+
+    (function loop() {
+      requestAnimationFrame(loop);
+      t += 0.008;
+
+      ctx.clearRect(0, 0, W, H);
+
+      /* Portal anchored to upper-right quadrant — floats behind the hero */
+      const cx   = W * 0.78;
+      const cy   = H * 0.42;
+      const baseR = Math.min(W, H) * 0.30;
+
+      /* Radial glow */
+      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, baseR * 1.2);
+      glow.addColorStop(0,   'rgba(0,212,255,0.05)');
+      glow.addColorStop(0.5, 'rgba(0,140,200,0.03)');
+      glow.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(cx, cy, baseR * 1.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      /* Rings */
+      RINGS.forEach(ring => {
+        const r      = baseR * ring.rf;
+        const ang    = t * ring.spd + ring.phase;
+        const pulseOp = ring.op + Math.sin(t * 1.4 + ring.phase) * 0.10;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(ang);
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(0,212,255,${pulseOp})`;
+        ctx.lineWidth   = ring.lw;
+        ring.dash.length ? ctx.setLineDash(ring.dash) : ctx.setLineDash([]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      });
+
+      /* Tick marks */
+      const outerR = baseR * 0.44;
+      for (let i = 0; i < TICKS; i++) {
+        const ang     = (i / TICKS) * Math.PI * 2 + t * 0.06;
+        const isMajor = i % 6 === 0;
+        const tickLen = isMajor ? 10 : 5;
+        const op      = isMajor ? 0.50 : 0.18;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(ang) * outerR,             cy + Math.sin(ang) * outerR);
+        ctx.lineTo(cx + Math.cos(ang) * (outerR + tickLen), cy + Math.sin(ang) * (outerR + tickLen));
+        ctx.strokeStyle = `rgba(0,212,255,${op})`;
+        ctx.lineWidth   = isMajor ? 1.2 : 0.6;
+        ctx.stroke();
+      }
+
+      /* Crosshair */
+      const dotPulse = 0.45 + Math.sin(t * 2.2) * 0.28;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,212,255,${dotPulse})`;
+      ctx.fill();
+
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy]) => {
+        ctx.beginPath();
+        ctx.moveTo(cx + dx * 6,        cy + dy * 6);
+        ctx.lineTo(cx + dx * (6 + 14), cy + dy * (6 + 14));
+        ctx.strokeStyle = 'rgba(0,212,255,0.38)';
+        ctx.lineWidth   = 0.8;
+        ctx.stroke();
+      });
+
+      /* Corner brackets */
+      const bx1 = cx - outerR - 16, by1 = cy - outerR - 16;
+      const bx2 = cx + outerR + 16, by2 = cy + outerR + 16;
+      [[bx1,by1,1,1],[bx2,by1,-1,1],[bx2,by2,-1,-1],[bx1,by2,1,-1]].forEach(([x,y,sx,sy]) => {
+        ctx.beginPath();
+        ctx.moveTo(x + sx * BRK, y);
+        ctx.lineTo(x, y);
+        ctx.lineTo(x, y + sy * BRK);
+        ctx.strokeStyle = 'rgba(0,212,255,0.28)';
+        ctx.lineWidth   = 1.2;
+        ctx.setLineDash([]);
+        ctx.stroke();
+      });
+
+      /* Scanline sweep */
+      scanY = ((t * 55) % (outerR * 2));
+      const scanAbsY = cy - outerR + scanY;
+      if (scanAbsY > cy - outerR && scanAbsY < cy + outerR) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+        ctx.clip();
+        const sg = ctx.createLinearGradient(cx - outerR, scanAbsY, cx + outerR, scanAbsY);
+        sg.addColorStop(0,   'rgba(0,212,255,0)');
+        sg.addColorStop(0.3, 'rgba(0,212,255,0.05)');
+        sg.addColorStop(0.5, 'rgba(0,212,255,0.12)');
+        sg.addColorStop(0.7, 'rgba(0,212,255,0.05)');
+        sg.addColorStop(1,   'rgba(0,212,255,0)');
+        ctx.fillStyle = sg;
+        ctx.fillRect(cx - outerR, scanAbsY - 1.5, outerR * 2, 3);
+        ctx.restore();
+      }
+
+      /* Data labels */
+      ctx.font = '9px Switzer, monospace';
+      [
+        { text: 'AR — ACTIVE',   x: cx + outerR + 20, y: cy - 14, op: 0.28 + Math.sin(t*1.1)*0.10 },
+        { text: 'LAYER — 3',     x: cx + outerR + 20, y: cy -  1, op: 0.20 },
+        { text: 'PORTAL — OPEN', x: cx + outerR + 20, y: cy + 12, op: 0.25 + Math.sin(t*0.8+1)*0.08 },
+      ].forEach(l => {
+        ctx.fillStyle = `rgba(0,212,255,${l.op})`;
+        ctx.fillText(l.text, l.x, l.y);
+      });
+
+    })();
+  })();
 
 </body>
 </html>
