@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,22 +26,7 @@
   --bomb-bg:#0b0810;--bomb-glow:#c77dff;
   --cane-bg:#0f0800;--cane-glow:#e9a84c;
   --marco-bg:#0c0c0c;--marco-glow:#d4d0c8;
-  --ar-bg:#07131a;
---ar-glow:#53d9ff;
---ar-mid:#2b8fb1;
-
-#ar{background:var(--ar-bg);color:#bcefff;}
-#ar .ptitle{color:var(--ar-glow);}
-#ar .ptag{color:#53d9ff;}
-#ar-c{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-  z-index:0;
-}
-#ar .pc{position:relative;z-index:10;}
+  --ar-bg:#040d12;--ar-glow:#00d4ff;
   --font-display:'Ciclo',Georgia,serif;
   --font-body:'Switzer',system-ui,sans-serif;
 }
@@ -195,13 +181,18 @@ body{
 #rawcane .ptag{color:#e9a84c;}
 #cane-bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
 
-
 /* ── MARCO ── */
 #marco{background:var(--marco-bg);color:#c8c8c8;}
 #marco .ptitle{color:var(--marco-glow);}
 #marco .ptag{color:#c8c8c8;}
 .mgrid{position:absolute;inset:0;z-index:1;display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(8,1fr);opacity:.04;pointer-events:none;}
 .mgrid div{border:.5px solid #c8c8c8;}
+
+/* ── AR EXPERIENCE ── */
+#arexperience{background:var(--ar-bg);color:#a8eeff;}
+#arexperience .ptitle{color:var(--ar-glow);}
+#arexperience .ptag{color:#00d4ff;}
+#ar-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
 
 /* ── OUTRO ── */
 #outro{
@@ -247,6 +238,7 @@ body::after{
 <div id="side-dots">
   <div class="sdot"></div><div class="sdot"></div>
   <div class="sdot"></div><div class="sdot"></div>
+  <div class="sdot"></div>
 </div>
 
 <!-- INTRO -->
@@ -297,7 +289,6 @@ body::after{
 <!-- 03 RAW CANE -->
 <section class="ps" id="rawcane">
   <canvas id="cane-bg"></canvas>
-
   <div class="membrane" id="mem-cane"></div>
   <div class="pc">
     <p class="pnum reveal">03</p>
@@ -330,30 +321,23 @@ body::after{
   </div>
 </section>
 
-  <!-- 05 AR EXPERIENCE -->
-<section class="ps" id="ar">
-  <canvas class="bg" id="ar-c"></canvas>
+<!-- 05 AR EXPERIENCE -->
+<section class="ps" id="arexperience">
+  <canvas id="ar-canvas"></canvas>
   <div class="membrane" id="mem-ar"></div>
-
   <div class="pc">
     <p class="pnum reveal">05</p>
-    <h2 class="ptitle reveal">Through the Looking Glass</h2>
-
+    <h2 class="ptitle reveal">Through the<br>Looking Glass</h2>
     <div class="ptags reveal">
-      <span class="ptag">AR Experience</span>
-      <span class="ptag">Motion Design</span>
+      <span class="ptag">AR Experience</span><span class="ptag">Motion Design</span>
       <span class="ptag">Augmented Reality</span>
     </div>
-
-    <p class="pdesc reveal">
-      Three Tim Burton worlds — Alice in Wonderland, Beetlejuice, and The Nightmare Before Christmas — translated into augmented reality filters. Each AR experience transforms a single frame into an immersive dimensional portal.
-    </p>
-
+    <p class="pdesc reveal">Three Tim Burton worlds — Alice in Wonderland, Beetlejuice, and The Nightmare Before Christmas — translated into augmented reality filters. Each experience transforms a single frame into an immersive dimensional portal.</p>
     <p class="pyear reveal">2025</p>
-    <a href="https://dimitradimitriou.github.io/ARDD.html" class="plink reveal">View project →</a>
+    <a href="ARDD.html" class="plink reveal">View project →</a>
   </div>
 </section>
-  
+
 <!-- OUTRO -->
 <section id="outro">
   <p class="outro-eye">End of transmission</p>
@@ -380,8 +364,8 @@ document.querySelectorAll('a,button').forEach(el=>{el.addEventListener('mouseent
 /* ── SIDE DOTS + LABEL ── */
 const sdots=document.querySelectorAll('.sdot');
 const lbl=document.getElementById('sect-label');
-const sids=['signals','bombsite','rawcane','marco'];
-const snames=['01 — Signals','02 — Bombsite','03 — Raw Cane','04 — Marco Berta'];
+const sids=['signals','bombsite','rawcane','marco','arexperience'];
+const snames=['01 — Signals','02 — Bombsite','03 — Raw Cane','04 — Marco Berta','05 — AR Experience'];
 sids.forEach((id,i)=>{ScrollTrigger.create({trigger:'#'+id,start:'top center',end:'bottom center',onEnter:()=>setDot(i),onEnterBack:()=>setDot(i)});});
 ScrollTrigger.create({trigger:'#intro',start:'top center',end:'bottom center',onEnter:()=>clearDot(),onEnterBack:()=>clearDot()});
 function setDot(i){sdots.forEach((d,j)=>d.classList.toggle('on',j===i));lbl.textContent=snames[i];}
@@ -396,8 +380,9 @@ document.querySelectorAll('.reveal').forEach(el=>{
 });
 
 /* ── MEMBRANES ── */
-['sig','bomb','cane','marco'].forEach(k=>{
+['sig','bomb','cane','marco','ar'].forEach(k=>{
   const m=document.getElementById('mem-'+k);
+  if(!m)return;
   ScrollTrigger.create({trigger:m.closest('.ps'),start:'top bottom',end:'top 55%',
     onUpdate:self=>{const p=self.progress;m.style.opacity=p<.5?p*1.5:(1-p)*1.5;}});
 });
@@ -521,7 +506,6 @@ ScrollTrigger.create({trigger:'#intro',start:'top top',end:'bottom top',
     rdr.render(scene,cam);
   })();
 })();
-
 
 /* ══════════════════════════════════════════════════════════════
    RAW CANE — SUGARCANE FIELD BACKGROUND
@@ -667,12 +651,8 @@ ScrollTrigger.create({trigger:'#intro',start:'top top',end:'bottom top',
   })();
 })();
 
-
-
 /* ══════════════════════════════════
    MARCO CANVAS — wireframe cubes
-   FIX: use ResizeObserver so the renderer correctly sizes itself
-   once the section is in the DOM and has a rendered height.
 ══════════════════════════════════ */
 (()=>{
   const canvas = document.getElementById('marco-c');
@@ -685,7 +665,6 @@ ScrollTrigger.create({trigger:'#intro',start:'top top',end:'bottom top',
   const cam = new THREE.PerspectiveCamera(58, 1, 0.1, 1000);
   cam.position.set(0, 0, 10);
 
-  // Robust resize: read from section, fall back to window
   function getSize() {
     const W = section.offsetWidth  || innerWidth;
     const H = section.offsetHeight || innerHeight;
@@ -699,16 +678,13 @@ ScrollTrigger.create({trigger:'#intro',start:'top top',end:'bottom top',
     cam.updateProjectionMatrix();
   }
 
-  // Initial size — section may not have height yet, so also run after first paint
   rsz();
   addEventListener('resize', rsz);
 
-  // ResizeObserver fires once the section actually has a rendered size
   if (typeof ResizeObserver !== 'undefined') {
     new ResizeObserver(() => rsz()).observe(section);
   }
-  
-  // Wireframe cube group
+
   const grp = new THREE.Group();
   [0.6, 1.4, 2.6, 4.2].forEach((s, i) => {
     const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(s, s, s));
@@ -724,7 +700,6 @@ ScrollTrigger.create({trigger:'#intro',start:'top top',end:'bottom top',
   grp.position.set(3.5, 0, 0);
   scene.add(grp);
 
-  // Background grid lines
   for (let i = -6; i <= 6; i++) {
     [
       [new THREE.Vector3(-10, i * 0.75, 0), new THREE.Vector3(10,  i * 0.75, 0)],
@@ -737,7 +712,6 @@ ScrollTrigger.create({trigger:'#intro',start:'top top',end:'bottom top',
     });
   }
 
-  // Animate
   (function anim() {
     requestAnimationFrame(anim);
     grp.children.forEach(m => {
@@ -748,12 +722,193 @@ ScrollTrigger.create({trigger:'#intro',start:'top top',end:'bottom top',
     rdr.render(scene, cam);
   })();
 
-  // Populate the mgrid overlay
   const mg = document.getElementById('mgrid');
   for (let i = 0; i < 96; i++) {
     const d = document.createElement('div');
     mg.appendChild(d);
   }
+})();
+
+/* ══════════════════════════════════
+   AR EXPERIENCE CANVAS — portal viewfinder
+   Concentric rings rotating at different speeds,
+   scanline shimmer, corner brackets, data readout feel
+══════════════════════════════════ */
+(()=>{
+  const canvas = document.getElementById('ar-canvas');
+  const section = document.getElementById('arexperience');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  const resize = () => {
+    W = canvas.width  = section.offsetWidth  || innerWidth;
+    H = canvas.height = section.offsetHeight || innerHeight;
+  };
+  resize();
+  addEventListener('resize', resize);
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(() => resize()).observe(section);
+  }
+
+  // Portal rings — each with own radius factor, rotation speed, opacity, dash pattern
+  const RINGS = [
+    { rf: 0.38, spd:  0.18, op: 0.55, lw: 1.0, dash: [6, 14],   phase: 0 },
+    { rf: 0.32, spd: -0.28, op: 0.40, lw: 0.7, dash: [3, 22],   phase: 1.1 },
+    { rf: 0.26, spd:  0.42, op: 0.60, lw: 1.2, dash: [12, 8],   phase: 0.5 },
+    { rf: 0.20, spd: -0.55, op: 0.35, lw: 0.6, dash: [2, 18],   phase: 2.0 },
+    { rf: 0.14, spd:  0.70, op: 0.50, lw: 0.9, dash: [8, 6],    phase: 0.8 },
+    { rf: 0.08, spd: -0.90, op: 0.65, lw: 0.5, dash: [4, 10],   phase: 1.6 },
+    // solid outermost ring — slow pulse
+    { rf: 0.44, spd:  0.06, op: 0.20, lw: 0.5, dash: [],        phase: 0 },
+  ];
+
+  // Radial tick marks on outer ring
+  const TICKS = 36;
+
+  // Corner bracket size
+  const BRK = 28;
+
+  // Scanline offset
+  let scanY = 0;
+
+  let t = 0;
+
+  (function loop() {
+    requestAnimationFrame(loop);
+    t += 0.008;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Portal sits right-of-centre to complement left-aligned text
+    const cx = W * 0.70;
+    const cy = H * 0.50;
+    const baseR = Math.min(W, H) * 0.38;
+
+    // Subtle radial glow behind rings
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, baseR * 1.1);
+    glow.addColorStop(0,   'rgba(0,212,255,0.04)');
+    glow.addColorStop(0.5, 'rgba(0,140,200,0.03)');
+    glow.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(cx, cy, baseR * 1.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw each ring
+    RINGS.forEach(ring => {
+      const r   = baseR * ring.rf;
+      const ang = t * ring.spd + ring.phase;
+
+      // Pulse opacity slightly
+      const pulseOp = ring.op + Math.sin(t * 1.4 + ring.phase) * 0.12;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(ang);
+
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(0,212,255,${pulseOp})`;
+      ctx.lineWidth   = ring.lw;
+      if (ring.dash.length) ctx.setLineDash(ring.dash);
+      else ctx.setLineDash([]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.restore();
+    });
+
+    // Tick marks on outermost dashed ring
+    const outerR = baseR * 0.44;
+    for (let i = 0; i < TICKS; i++) {
+      const ang = (i / TICKS) * Math.PI * 2 + t * 0.06;
+      const isMajor = i % 6 === 0;
+      const tickLen = isMajor ? 10 : 5;
+      const op      = isMajor ? 0.55 : 0.22;
+      const x1 = cx + Math.cos(ang) * outerR;
+      const y1 = cy + Math.sin(ang) * outerR;
+      const x2 = cx + Math.cos(ang) * (outerR + tickLen);
+      const y2 = cy + Math.sin(ang) * (outerR + tickLen);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = `rgba(0,212,255,${op})`;
+      ctx.lineWidth   = isMajor ? 1.2 : 0.6;
+      ctx.stroke();
+    }
+
+    // Cross-hair centre dot
+    const dotPulse = 0.5 + Math.sin(t * 2.2) * 0.3;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,212,255,${dotPulse})`;
+    ctx.fill();
+
+    // Cross-hair lines (short)
+    const chLen = 14;
+    [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(cx + dx * 6,  cy + dy * 6);
+      ctx.lineTo(cx + dx * (6 + chLen), cy + dy * (6 + chLen));
+      ctx.strokeStyle = `rgba(0,212,255,0.45)`;
+      ctx.lineWidth   = 0.8;
+      ctx.stroke();
+    });
+
+    // Corner brackets around the portal area
+    const bx1 = cx - outerR - 16, by1 = cy - outerR - 16;
+    const bx2 = cx + outerR + 16, by2 = cy + outerR + 16;
+    const corners = [
+      [bx1, by1,  1,  1],
+      [bx2, by1, -1,  1],
+      [bx2, by2, -1, -1],
+      [bx1, by2,  1, -1],
+    ];
+    ctx.strokeStyle = 'rgba(0,212,255,0.35)';
+    ctx.lineWidth   = 1.2;
+    ctx.setLineDash([]);
+    corners.forEach(([x, y, sx, sy]) => {
+      ctx.beginPath();
+      ctx.moveTo(x + sx * BRK, y);
+      ctx.lineTo(x, y);
+      ctx.lineTo(x, y + sy * BRK);
+      ctx.stroke();
+    });
+
+    // Scanline shimmer — single bright line sweeping through portal
+    scanY = ((t * 60) % (outerR * 2));
+    const scanAbsY = cy - outerR + scanY;
+    if (scanAbsY > cy - outerR && scanAbsY < cy + outerR) {
+      // Clip to circle
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+      ctx.clip();
+      const scanGrad = ctx.createLinearGradient(cx - outerR, scanAbsY, cx + outerR, scanAbsY);
+      scanGrad.addColorStop(0,   'rgba(0,212,255,0)');
+      scanGrad.addColorStop(0.3, 'rgba(0,212,255,0.06)');
+      scanGrad.addColorStop(0.5, 'rgba(0,212,255,0.14)');
+      scanGrad.addColorStop(0.7, 'rgba(0,212,255,0.06)');
+      scanGrad.addColorStop(1,   'rgba(0,212,255,0)');
+      ctx.fillStyle = scanGrad;
+      ctx.fillRect(cx - outerR, scanAbsY - 1.5, outerR * 2, 3);
+      ctx.restore();
+    }
+
+    // Data readout text — small labels near the portal edge
+    ctx.font = '9px "Switzer", monospace';
+    ctx.letterSpacing = '0.15em';
+    const labels = [
+      { text: 'AR — ACTIVE',      x: cx + outerR + 22, y: cy - 18, op: 0.30 + Math.sin(t*1.1)*0.12 },
+      { text: 'LAYER — 3',        x: cx + outerR + 22, y: cy - 4,  op: 0.22 },
+      { text: 'PORTAL — OPEN',    x: cx + outerR + 22, y: cy + 10, op: 0.28 + Math.sin(t*0.8+1)*0.10 },
+    ];
+    labels.forEach(l => {
+      ctx.fillStyle = `rgba(0,212,255,${l.op})`;
+      ctx.fillText(l.text, l.x, l.y);
+    });
+
+  })();
 })();
 </script>
 </body>
