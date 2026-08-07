@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TravelXpress — Dimitra Dimitriou</title>
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,300,500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=ciclo@400,700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --cream:#f5f0e8;--cream-dim:#b7c6b6;--bg:#080b09;
+  --tx-teal:#7a9f7e;--tx-teal-light:#a9c8a6;
+  --tx-navy:#131f38;--tx-peach:#e8b46b;
+  --font-display:'Ciclo',Georgia,serif;
+  --font-body:'Switzer',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--cream);font-family:var(--font-body);font-weight:300;overflow-x:hidden;cursor:none;}
+#cursor-dot{position:fixed;width:6px;height:6px;background:var(--tx-teal-light);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
+#cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(122,159,126,.35);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .28s,height .28s,border-color .3s;}
+#cursor-ring.grow{width:54px;height:54px;border-color:rgba(122,159,126,.65);}
+#back-nav{position:fixed;top:2.2rem;left:2.8rem;z-index:200;font-size:11px;font-weight:400;letter-spacing:.12em;color:rgba(245,240,232,.28);text-decoration:none;text-transform:uppercase;transition:color .3s;cursor:none;}
+#back-nav:hover{color:var(--cream-dim);}
+#progress-bar{position:fixed;top:0;left:0;height:1px;background:linear-gradient(90deg,var(--tx-teal),var(--tx-teal-light));z-index:300;width:0%;transition:width .1s linear;}
+
+/* HERO CANVAS */
+#tx-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;}
+.tgrid-hero{position:absolute;inset:0;z-index:2;display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(8,1fr);opacity:.04;pointer-events:none;}
+.tgrid-hero div{border:.5px solid #c8c8c8;}
+
+/* HERO */
+#hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,#101d16 0%,#080b09 65%);}
+#hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 15%;filter:brightness(.32) saturate(.85);opacity:.85;}
+#hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,11,9,.97) 0%,rgba(8,11,9,.55) 55%,rgba(10,16,12,.35) 100%),radial-gradient(ellipse at 72% 35%,rgba(122,159,126,.10) 0%,transparent 60%);}
+.hero-inner{position:relative;z-index:10;padding:0 9rem 6rem;max-width:1200px;}
+.hero-meta{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:rgba(122,159,126,.75);margin-bottom:1.4rem;display:flex;align-items:center;gap:1.2rem;}
+.hero-meta::before{content:'';width:32px;height:1px;background:rgba(122,159,126,.45);}
+.hero-title{font-family:var(--font-display);font-size:clamp(3.6rem,8.5vw,7.8rem);font-weight:400;line-height:.95;color:var(--cream);margin-bottom:2rem;}
+.hero-desc{font-size:1rem;font-weight:300;line-height:1.85;color:rgba(245,240,232,.55);max-width:580px;margin-bottom:2.8rem;}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.hero-tag{font-size:8px;letter-spacing:.2em;text-transform:uppercase;padding:5px 13px;border:1px solid rgba(122,159,126,.35);color:rgba(122,159,126,.8);}
+.hero-year{position:absolute;bottom:6rem;right:9rem;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,240,232,.2);}
+
+/* SECTIONS */
+.proj-section{padding:8rem 9rem;position:relative;border-top:1px solid rgba(122,159,126,.07);}
+.section-label{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:rgba(122,159,126,.55);margin-bottom:3.5rem;display:flex;align-items:center;gap:1rem;}
+.section-label::before{content:'';width:24px;height:1px;background:rgba(122,159,126,.35);}
+.section-heading{font-family:var(--font-display);font-size:clamp(1.7rem,3.2vw,2.7rem);font-weight:400;color:var(--cream);line-height:1.15;margin-bottom:1.2rem;}
+.section-body{font-size:.95rem;font-weight:300;line-height:1.9;color:rgba(245,240,232,.55);max-width:640px;}
+.section-body + .section-body{margin-top:1.2rem;}
+.col-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(122,159,126,.65);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid rgba(122,159,126,.22);}
+.col-text{font-size:.9rem;font-weight:300;line-height:1.9;color:rgba(245,240,232,.45);}
+
+/* OVERVIEW */
+#overview{background:linear-gradient(135deg,#111d13 0%,#080b09 100%);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:5rem;margin-top:4rem;align-items:start;}
+
+/* PREVIEW TEASER */
+#preview{background:#0b100c;padding-top:6rem;padding-bottom:6rem;text-align:center;}
+#preview .section-label{justify-content:center;}
+#preview .section-label::before{display:none;}
+#preview .preview-heading{font-family:var(--font-display);font-size:clamp(1.6rem,3vw,2.4rem);color:var(--cream);margin-bottom:1rem;}
+#preview .preview-sub{font-size:.9rem;color:rgba(245,240,232,.5);max-width:520px;margin:0 auto 3.5rem;line-height:1.8;}
+.preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:760px;margin:0 auto;}
+.preview-grid img{width:100%;display:block;filter:drop-shadow(0 20px 40px rgba(0,0,0,.5));}
+.preview-jump{display:inline-flex;align-items:center;gap:.6rem;margin-top:3.5rem;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--tx-teal-light);text-decoration:none;cursor:none;transition:color .3s;}
+.preview-jump:hover{color:var(--cream);}
+.preview-jump svg{width:12px;height:12px;transition:transform .3s;}
+.preview-jump:hover svg{transform:translateY(3px);}
+@media(max-width:900px){
+  .preview-grid{grid-template-columns:repeat(3,1fr);gap:1rem;}
+}
+
+/* OBJECTIVES LIST */
+.obj-list{margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2.6rem 4rem;}
+.obj-item{border-left:1px solid rgba(122,159,126,.3);padding-left:1.4rem;}
+.obj-item .obj-num{font-family:var(--font-display);font-size:1.3rem;color:rgba(122,159,126,.55);display:block;margin-bottom:.5rem;}
+.obj-item p{font-size:.88rem;line-height:1.75;color:rgba(245,240,232,.5);}
+
+/* METHOD CARDS */
+#methods{background:#0b100c;}
+.method-grid{margin-top:4rem;display:grid;grid-template-columns:repeat(3,1fr);gap:2.4rem;}
+.method-card{border:1px solid rgba(122,159,126,.15);padding:2rem 1.8rem;background:rgba(122,159,126,.03);}
+.method-card .m-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--tx-teal-light);margin-bottom:.9rem;}
+.method-card p{font-size:.85rem;line-height:1.75;color:rgba(245,240,232,.45);}
+.method-img-wrap{margin-top:4rem;}
+.method-img-wrap img{width:100%;display:block;border-radius:4px;border:1px solid rgba(122,159,126,.12);}
+.method-caption{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,240,232,.3);margin-top:1rem;}
+
+/* KEY INSIGHTS */
+#insights{background:linear-gradient(180deg,#0b100c,#080b09);}
+.insight-grid{margin-top:4rem;display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;}
+.insight-card{padding:2.2rem 1.8rem;border:1px solid rgba(232,180,107,.18);position:relative;}
+.insight-card .i-tag{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--tx-peach);margin-bottom:1rem;display:block;}
+.insight-card p{font-size:.9rem;line-height:1.8;color:rgba(245,240,232,.55);}
+
+/* JOURNEY MAPS */
+#journeys{background:#080b09;}
+.journey-block{margin-top:5rem;}
+.journey-block:first-of-type{margin-top:4rem;}
+.journey-head{display:flex;align-items:baseline;gap:1.2rem;margin-bottom:1.6rem;flex-wrap:wrap;}
+.journey-head h3{font-family:var(--font-display);font-size:1.6rem;color:var(--cream);}
+.journey-head span{font-size:.82rem;color:var(--tx-teal-light);font-style:italic;}
+.journey-meta{font-size:.78rem;color:rgba(245,240,232,.35);margin-bottom:1.4rem;letter-spacing:.02em;}
+.journey-img-wrap img{width:100%;display:block;border-radius:4px;border:1px solid rgba(122,159,126,.12);}
+.journey-learnings{margin-top:1.4rem;font-size:.85rem;line-height:1.85;color:rgba(245,240,232,.45);}
+.journey-learnings b{color:var(--tx-teal-light);font-weight:500;}
+
+/* LEARNINGS LIST (desk research / social scrape / competitor) */
+.learn-num-list{margin-top:2.5rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem 3.5rem;}
+.learn-item{padding-bottom:1.6rem;border-bottom:1px solid rgba(122,159,126,.1);}
+.learn-item .l-num{font-family:var(--font-display);font-size:1.1rem;color:var(--tx-teal-light);margin-right:.6rem;}
+.learn-item .l-title{font-size:.88rem;color:var(--cream);font-weight:500;}
+.learn-item p{font-size:.82rem;line-height:1.75;color:rgba(245,240,232,.42);margin-top:.5rem;}
+.learn-item .l-outcome{color:rgba(169,200,166,.75);font-style:italic;}
+
+/* FLOWS */
+#flows{background:linear-gradient(180deg,#080b09,#0d150f);}
+.flow-grid{margin-top:3.5rem;display:grid;grid-template-columns:1fr;gap:2.5rem;}
+.flow-grid img{width:100%;display:block;border-radius:4px;border:1px solid rgba(122,159,126,.12);}
+
+/* DEFINE PHASE */
+#define{background:#0d150f;}
+.define-grid-2{margin-top:3.5rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+.define-grid-2 img{width:100%;display:block;border-radius:4px;border:1px solid rgba(122,159,126,.12);}
+.archetype-list{margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.6rem;}
+.archetype-item{border-top:1px solid rgba(122,159,126,.25);padding-top:1rem;}
+.archetype-item .a-name{font-size:.85rem;color:var(--tx-teal-light);font-weight:500;margin-bottom:.4rem;display:block;}
+.archetype-item p{font-size:.82rem;line-height:1.7;color:rgba(245,240,232,.42);}
+.jtbd-quote{margin-top:2rem;border-left:2px solid var(--tx-teal);padding-left:1.8rem;font-size:1rem;line-height:1.8;color:rgba(245,240,232,.7);font-style:italic;max-width:640px;}
+
+/* PROBLEM STATEMENTS */
+.problem-examples{margin-top:2.5rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+.problem-card{background:rgba(122,159,126,.05);border:1px solid rgba(122,159,126,.15);padding:1.8rem;}
+.problem-card .p-quote{font-size:.92rem;line-height:1.75;color:rgba(245,240,232,.65);font-style:italic;margin-bottom:1rem;}
+.problem-card .p-hmw{font-size:.8rem;line-height:1.7;color:var(--tx-teal-light);}
+.problem-card .p-hmw b{color:rgba(245,240,232,.5);font-style:normal;font-weight:500;}
+
+/* FINAL CHALLENGE PULLQUOTE */
+.pullquote{margin-top:3rem;padding:3.5rem 4rem;border:1px solid rgba(122,159,126,.2);background:radial-gradient(ellipse at 20% 20%,rgba(122,159,126,.06),transparent 60%);}
+.pullquote p{font-family:var(--font-display);font-size:clamp(1.3rem,2.4vw,1.9rem);line-height:1.5;color:var(--cream);font-weight:400;}
+
+/* IDEATE / WIREFRAMES */
+#ideate{background:linear-gradient(180deg,#0d150f,#080b09);}
+.wireframe-single{margin-top:3.5rem;}
+.wireframe-single img{width:100%;display:block;border-radius:4px;border:1px solid rgba(122,159,126,.12);}
+.wireframe-single + .wireframe-single{margin-top:3rem;}
+.wf-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,240,232,.35);margin-bottom:1rem;}
+
+/* STYLE GUIDE */
+#style{background:#080b09;}
+.style-grid{margin-top:3.5rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+.style-grid img{width:100%;display:block;border-radius:4px;border:1px solid rgba(122,159,126,.12);}
+.swatch-row{margin-top:3rem;display:flex;flex-wrap:wrap;gap:1.2rem;}
+.swatch{width:120px;}
+.swatch-color{height:70px;border-radius:4px;border:1px solid rgba(245,240,232,.1);}
+.swatch p{font-size:.72rem;margin-top:.6rem;color:rgba(245,240,232,.45);line-height:1.5;}
+.swatch p.hex{color:rgba(245,240,232,.65);font-weight:500;}
+.type-note{margin-top:2rem;font-size:.85rem;color:rgba(245,240,232,.4);}
+
+/* PROTOTYPES */
+#prototypes{background:linear-gradient(180deg,#080b09,#0d150f);}
+.proto-block{margin-top:3.5rem;}
+.proto-block img{width:100%;display:block;border-radius:4px;border:1px solid rgba(122,159,126,.12);}
+.proto-block + .proto-block{margin-top:3rem;}
+.proto-link{display:inline-block;margin-top:1rem;font-size:.8rem;color:var(--tx-teal-light);text-decoration:none;letter-spacing:.04em;cursor:none;}
+.proto-link:hover{color:var(--cream);}
+
+/* REFLECTION */
+#reflection{background:#0d150f;}
+.reflection-quote{margin-top:3rem;font-size:1rem;line-height:1.9;color:rgba(245,240,232,.55);max-width:680px;}
+.reflection-quote + .reflection-quote{margin-top:1.6rem;}
+
+/* FINAL MOCKUPS placeholder */
+#finals{background:linear-gradient(180deg,#0d150f,#080b09);}
+.finals-note{margin-top:1.4rem;font-size:.82rem;color:rgba(245,240,232,.35);font-style:italic;}
+.finals-grid{margin-top:3.5rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.6rem;}
+.finals-grid .mock-slot{aspect-ratio:9/17;border:1px dashed rgba(122,159,126,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(122,159,126,.03);}
+.finals-grid .mock-slot span{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(122,159,126,.4);text-align:center;padding:1rem;}
+.finals-grid figure{margin:0;}
+.finals-grid img{width:100%;display:block;}
+.finals-grid figcaption{margin-top:1rem;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,240,232,.35);text-align:center;}
+
+/* DESKTOP LAPTOP MOCKUP */
+.laptop-mockup-wrap{margin-top:4rem;max-width:920px;margin-left:auto;margin-right:auto;}
+.laptop-mockup-wrap + .laptop-mockup-wrap{margin-top:5rem;}
+.laptop-screen{position:relative;background:#0a0f0b;border:10px solid #1a211b;border-bottom:none;border-radius:14px 14px 0 0;padding:0;box-shadow:0 30px 70px rgba(0,0,0,.55),inset 0 0 0 1px rgba(122,159,126,.08);overflow:hidden;}
+.laptop-screen::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:70px;height:10px;background:#0a0f0b;border-radius:0 0 6px 6px;z-index:2;}
+.laptop-screen img{width:100%;display:block;}
+.laptop-base{position:relative;height:16px;background:linear-gradient(180deg,#20281f,#161c15);border-radius:0 0 10px 10px;}
+.laptop-base::before{content:'';position:absolute;left:50%;top:0;transform:translateX(-50%);width:130px;height:6px;background:#0d110d;border-radius:0 0 8px 8px;}
+.laptop-hinge{height:5px;background:linear-gradient(90deg,#0a0d0a,#2a332a 50%,#0a0d0a);border-radius:0 0 3px 3px;}
+.laptop-caption{margin-top:1.6rem;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,240,232,.35);text-align:center;}
+
+/* FOOTER */
+#footer-nav{padding:5rem 9rem 6rem;border-top:1px solid rgba(122,159,126,.1);display:flex;justify-content:space-between;align-items:center;}
+.fnav-back{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,240,232,.25);text-decoration:none;transition:color .3s;cursor:none;}
+.fnav-back:hover{color:var(--cream);}
+.fnav-sig{font-family:var(--font-display);font-size:1.1rem;color:rgba(122,159,126,.25);}
+
+.reveal{opacity:0;transform:translateY(32px);}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:500;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;}
+
+@media(max-width:900px){
+  .proj-section{padding:5rem 2.5rem;}
+  .hero-inner{padding:0 2.5rem 5rem;}
+  .hero-year{right:2.5rem;}
+  .two-col,.obj-list,.method-grid,.insight-grid,.define-grid-2,.archetype-list,.problem-examples,.style-grid,.finals-grid,.learn-num-list{grid-template-columns:1fr;}
+  #footer-nav{padding:4rem 2.5rem 5rem;flex-direction:column;gap:2rem;}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<div id="progress-bar"></div>
+<a href="work.html" id="back-nav">← All Work</a>
+
+<!-- HERO -->
+<section id="hero">
+  <!-- Swap hero-img src for a final mockup image once ready, e.g. tx-final-mockup-hero.png -->
+  <img id="hero-img" src="tx-prototype-mobile-1.png" alt="TravelXpress mobile app hero"/>
+  <canvas id="tx-canvas"></canvas>
+  <div class="tgrid-hero" id="tgrid-hero"></div>
+  <div id="hero-overlay"></div>
+  <div class="hero-inner">
+    <p class="hero-meta reveal">05 — UX/UI Design</p>
+    <h1 class="hero-title reveal">TravelXpress</h1>
+    <p class="hero-desc reveal">A full UX/UI redesign of a mobile booking app for trains and coaches across the UK — approached through the Double Diamond framework, from in-depth discovery research through to defined problem statements, wireframes, a design system and interactive prototypes.</p>
+    <div class="hero-tags reveal">
+      <span class="hero-tag">UX/UI Design</span>
+      <span class="hero-tag">Mobile App</span>
+      <span class="hero-tag">User Research</span>
+      <span class="hero-tag">Prototyping</span>
+    </div>
+  </div>
+  <p class="hero-year reveal">2025</p>
+</section>
+
+<!-- OVERVIEW -->
+<section class="proj-section" id="overview">
+  <p class="section-label reveal">Overview</p>
+  <div class="two-col">
+    <div class="reveal">
+      <p class="col-label">Context</p>
+      <p class="col-text">TravelXpress is a redesign of a mobile app for booking trains and coaches across the UK, built around the Double Diamond framework. The Discover phase focused on research and exploration — deeply understanding the problem space by gathering insights about users, their behaviours, frustrations, motivations and needs through interviews, surveys, customer journey mapping, desk research, social scraping and competitor analysis.</p>
+      <p class="col-text" style="margin-top:1rem;">The goal of this phase was to build a rich understanding of users and the context, supporting divergent thinking and opening up the problem space before any solutions were considered.</p>
+    </div>
+    <div class="reveal">
+      <p class="col-label">Design Approach — Strategy</p>
+      <p class="col-text">The Define phase turned the research from Discover into clear, structured insights — using affinity diagramming, personas, archetypes, jobs-to-be-done analysis, empathy mapping, problem statements and How Might We questions to pinpoint the core user needs and the specific problems worth solving.</p>
+      <p class="col-text" style="margin-top:1rem;">This synthesis supported convergent thinking, narrowing the insights down to identify key challenges and prepare for ideation — resulting in lo-fi wireframes, a design system and interactive prototypes tested across desktop and mobile.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PREVIEW TEASER -->
+<section class="proj-section" id="preview">
+  <p class="section-label reveal">A Quick Look Ahead</p>
+  <h2 class="preview-heading reveal">Where this journey landed</h2>
+  <p class="preview-sub reveal">Before diving into the research — here's a glimpse of the final TravelXpress app, built from everything that follows.</p>
+  <div class="preview-grid">
+    <img class="reveal" src="tx-final-mockup-home.png" alt="TravelXpress final mockup preview — Home / Search"/>
+    <img class="reveal" src="tx-final-mockup-results.png" alt="TravelXpress final mockup preview — Results"/>
+    <img class="reveal" src="tx-final-mockup-confirmation.png" alt="TravelXpress final mockup preview — Confirmation"/>
+  </div>
+  <a href="#finals" class="preview-jump reveal">See all final mockups
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16m0 0l-6-6m6 6l6-6"/></svg>
+  </a>
+</section>
+
+<!-- RESEARCH OBJECTIVES -->
+<section class="proj-section" id="objectives">
+  <p class="section-label reveal">Research Objectives</p>
+  <h2 class="section-heading reveal">Understanding user behaviours and pain points</h2>
+  <p class="section-body reveal">Investigating how users navigate the app, identifying where they struggle — payment, seat selection, disruptions — and uncovering what motivates or frustrates them during the booking and travel planning process.</p>
+  <div class="obj-list">
+    <div class="obj-item reveal">
+      <span class="obj-num">01</span>
+      <p>Identify user needs and expectations — exploring what users value most, such as transparency, reliability, ease of use, and quick access to information, to determine which features or improvements would meaningfully enhance their experience.</p>
+    </div>
+    <div class="obj-item reveal">
+      <span class="obj-num">02</span>
+      <p>Validate and cross-check insights through mixed methods — using interviews, surveys, social scraping and journey mapping to confirm recurring patterns in user feedback, grounded in both qualitative and quantitative data.</p>
+    </div>
+    <div class="obj-item reveal">
+      <span class="obj-num">03</span>
+      <p>Analyse the competitive landscape — examining competitor apps to identify best practices, gaps in the market, and successful features that could inspire opportunities for differentiation and improvement.</p>
+    </div>
+    <div class="obj-item reveal">
+      <span class="obj-num">04</span>
+      <p>Build a comprehensive understanding of the broader context — conducting desk research to understand industry trends, standards and emerging behaviours in mobility and booking systems.</p>
+    </div>
+    <div class="obj-item reveal">
+      <span class="obj-num">05</span>
+      <p>Synthesise findings into actionable design opportunities — organising research insights into themes that highlight key issues, such as lack of transparency, unstable seat maps, slow loading times and poor disruption handling.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RESEARCH METHODS -->
+<section class="proj-section" id="methods">
+  <p class="section-label reveal">Research Methods</p>
+  <h2 class="section-heading reveal">Discovery Phase</h2>
+  <p class="section-body reveal">The Discover phase focused on research into competitors and user flows to understand how people use the app. User interviews were conducted to get qualitative information and discover what frustrates and motivates users, as well as what they prefer. Surveys &amp; questionnaires provided broader insight and helped confirm — or challenge — the findings from the interviews. Customer journey mapping visually presented the steps users take while using the app and how each step makes them feel, plotted against pain points, emotions and opportunities for improvement.</p>
+  <p class="section-body reveal">Secondary research included desk research — reading published articles, watching video reviews, and reviewing books and studies relevant to the subject — to understand industry trends and standards. Social scraping researched user reviews on social media to gain real, unfiltered pain points directly from users. Competitor analysis helped identify user feedback patterns, successful features, gaps in the market and best practices across the category.</p>
+
+  <div class="method-grid">
+    <div class="method-card reveal">
+      <p class="m-label">User Interviews</p>
+      <p>One-to-one conversations conducted to get qualitative information on what frustrates, motivates and what users prefer when booking travel.</p>
+    </div>
+    <div class="method-card reveal">
+      <p class="m-label">Surveys &amp; Questionnaires</p>
+      <p>Broader quantitative insight used to confirm — or challenge — the patterns surfaced through one-to-one interviews.</p>
+    </div>
+    <div class="method-card reveal">
+      <p class="m-label">Journey Mapping</p>
+      <p>A visual presentation of the steps users take while using the app, and how they experience the whole process — charted with pain points, emotions and opportunities.</p>
+    </div>
+  </div>
+
+  <div class="method-img-wrap reveal">
+    <img src="tx-research-interviews.png" alt="User interview research boards"/>
+    <p class="method-caption">User Interviews — research boards</p>
+  </div>
+  <div class="method-img-wrap reveal">
+    <img src="tx-research-surveys.png" alt="Surveys and questionnaires with user answers and insights"/>
+    <p class="method-caption">Surveys &amp; Questionnaires — questions, answers &amp; insight per persona segment</p>
+  </div>
+</section>
+
+<!-- KEY INSIGHTS -->
+<section class="proj-section" id="insights">
+  <p class="section-label reveal">Key Insights</p>
+  <h2 class="section-heading reveal">Recurring themes from the research</h2>
+  <p class="section-body reveal">The main findings were grouped into themes around user behaviours, needs and frustrations.</p>
+  <div class="insight-grid">
+    <div class="insight-card reveal">
+      <span class="i-tag">Transparency</span>
+      <p>Users often abandon the booking process at the payment step due to unclear fees.</p>
+    </div>
+    <div class="insight-card reveal">
+      <span class="i-tag">Reliability</span>
+      <p>Many users complain about unstable seat maps and slow-loading availability, especially during peak travel times.</p>
+    </div>
+    <div class="insight-card reveal">
+      <span class="i-tag">Simplicity</span>
+      <p>People enjoy the simplicity and reliability of QR ticketing across trains and coaches.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DESK RESEARCH -->
+<section class="proj-section" id="desk-research">
+  <p class="section-label reveal">Secondary Research</p>
+  <h2 class="section-heading reveal">Desk Research</h2>
+  <p class="section-body reveal">Published articles, video reviews, books and studies were reviewed to build a foundation of knowledge on booking systems and mobility trends ahead of the redesign.</p>
+  <div class="method-img-wrap reveal">
+    <img src="tx-research-desk.png" alt="Desk research affinity board and learnings"/>
+  </div>
+  <div class="learn-num-list">
+    <div class="learn-item reveal"><span class="l-num">01</span><span class="l-title">Transparency is a core trust builder.</span><p>Users frequently abandon bookings due to hidden fees, unclear cancellation terms, and inconsistent pricing. <span class="l-outcome">Outcome: the redesign must prioritise upfront transparency, clear fare breakdowns, and simplified refund policies.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">02</span><span class="l-title">Users rely heavily on real-time accuracy.</span><p>Delays, outdated schedules or missing live updates significantly impact decision-making and perceived reliability. <span class="l-outcome">Outcome: incorporating up-to-date timetables, disruption alerts and journey-health indicators is essential for user confidence.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">03</span><span class="l-title">Simplicity and clarity reduce cognitive load.</span><p>Complex multi-leg journeys, unclear seat maps and dense UI elements overwhelm users — especially occasional travellers and parents. <span class="l-outcome">Outcome: the booking flow should be simplified with visual aids, streamlined seat selection and improved journey summaries.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">04</span><span class="l-title">Different user groups have different priorities.</span><p>Students value price, commuters value predictability, families value comfort and control, business users value punctuality and Wi-Fi. <span class="l-outcome">Outcome: personalised preferences, adaptive recommendations and tailored filters can better meet needs across segments.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">05</span><span class="l-title">Visual and interactive content improves decision-making.</span><p>Users respond positively to photos, carriage layouts, comparison grids and clear summaries. <span class="l-outcome">Outcome: enhancing visual clarity within the app will shorten decision times and reduce booking hesitation.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">06</span><span class="l-title">Small convenience features create disproportionate value.</span><p>Saved journeys, mobile tickets and clear accessibility options significantly improve the user experience. <span class="l-outcome">Outcome: retaining and expanding lightweight convenience features increases retention and satisfaction.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">07</span><span class="l-title">User reassurance is crucial during disruptions.</span><p>Travellers need guidance when plans change unexpectedly. <span class="l-outcome">Outcome: a proactive disruption assistant with re-routing suggestions and timing updates can reduce stress and prevent drop-offs.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">08</span><span class="l-title">Users often multitask while booking.</span><p>Booking frequently happens on the go — commutes, queues, breaks — requiring quick, distraction-proof interactions. <span class="l-outcome">Outcome: the interface should support rapid micro-decisions, easy backtracking and resumable sessions.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">09</span><span class="l-title">Trustworthiness increases when information is "glanceable."</span><p>Users prefer condensed, instantly readable information, not long text blocks. <span class="l-outcome">Outcome: prioritise bite-sized summaries, icons, progress indicators and comparison cards.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">10</span><span class="l-title">There is strong potential for innovation.</span><p>Opportunities such as predictive reliability, smart seat recommendations and multi-modal integration stand out across competitors. <span class="l-outcome">Outcome: the redesign can differentiate itself by offering intelligent new features that solve real, documented user pain points.</span></p></div>
+  </div>
+</section>
+
+<!-- SOCIAL SCRAPE -->
+<section class="proj-section" id="social-scrape">
+  <p class="section-label reveal">Secondary Research</p>
+  <h2 class="section-heading reveal">Social Scrape</h2>
+  <p class="section-body reveal">A scrape of real user reviews and posts across social media, gathering unfiltered pain points directly from travellers describing their experiences with existing booking apps.</p>
+  <div class="method-img-wrap reveal">
+    <img src="tx-research-social-scrape.png" alt="Social scrape affinity board and learnings"/>
+  </div>
+  <div class="learn-num-list">
+    <div class="learn-item reveal"><span class="l-num">01</span><span class="l-title">App stability and performance have a direct impact on user trust.</span><p>Frequent complaints about app crashes, freezing seat maps or payment resets show that technical reliability is a major expectation. <span class="l-outcome">Outcome: prioritise performance improvements, smooth load times and resilient payment flows.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">02</span><span class="l-title">Real-time accuracy is a repeated user pain point.</span><p>Users consistently express frustration when delays or timetable changes in the app don't match what's shown at the station. <span class="l-outcome">Outcome: synchronising data sources and offering more reliable real-time updates is essential to credibility.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">03</span><span class="l-title">Transparency around availability prevents user frustration.</span><p>Negative posts highlight confusion when trains or coaches labelled as "available" cannot actually be booked. <span class="l-outcome">Outcome: clear status indicators — sold out, limited seats, not bookable — reduce confusion and improve control.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">04</span><span class="l-title">Small convenience features generate strong positive sentiment.</span><p>Auto-applied discounts, saved passenger details and quick mobile ticket access repeatedly receive praise. <span class="l-outcome">Outcome: enhancing these "micro-conveniences" can significantly boost perceived value and delight.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">05</span><span class="l-title">Users want more context and reassurance during disruptions.</span><p>Many posts request clearer alternatives, guidance or explanations when delays occur. <span class="l-outcome">Outcome: adding disruption navigation — rerouting options, next fastest journey, easy refunds — can reduce anxiety in critical moments.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">06</span><span class="l-title">Travellers rely on external platforms to fill app gaps.</span><p>People frequently check Twitter/X, Reddit or station staff for platform info, crowd levels or alternative routes. <span class="l-outcome">Outcome: incorporating platform alerts, crowd data and multi-modal suggestions creates a more complete ecosystem within the app.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">07</span><span class="l-title">Seat selection remains an area of confusion and frustration.</span><p>Social comments reveal that users struggle with unclear or laggy seat maps, especially on mobile. <span class="l-outcome">Outcome: a clearer, more responsive seat-selection interface is essential for usability and conversion.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">08</span><span class="l-title">Safety and clarity of pickup locations matter to coach users.</span><p>Late-evening travellers often mention feeling unsafe or unsure about where to wait for their coach. <span class="l-outcome">Outcome: detailed pickup visuals, lighting indicators and AR/map guidance can improve safety perception and reduce stress.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">09</span><span class="l-title">Users exhibit price-conscious behaviour across platforms.</span><p>People openly compare screenshots, fares and apps when searching for the cheapest or fastest route. <span class="l-outcome">Outcome: integrating price-comparison tools or fare insights could reduce the need to juggle multiple apps.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">10</span><span class="l-title">Personalisation opportunities remain largely unmet.</span><p>Requests for quiet coach filters, seat preferences and crowd-level estimates suggest deeper personalisation is desired. <span class="l-outcome">Outcome: offering personalised recommendations can improve loyalty and make the booking experience feel tailored.</span></p></div>
+  </div>
+</section>
+
+<!-- COMPETITOR ANALYSIS -->
+<section class="proj-section" id="competitor-analysis">
+  <p class="section-label reveal">Secondary Research</p>
+  <h2 class="section-heading reveal">Competitor Analysis</h2>
+  <p class="section-body reveal">A matrix comparing existing train and coach booking apps across search, fare selection, payment, e-ticketing, UI and customer-experience factors, to identify best practices, gaps and opportunities for differentiation.</p>
+  <div class="method-img-wrap reveal">
+    <img src="tx-research-competitor-analysis.png" alt="Competitor matrix and flow charts across booking apps"/>
+  </div>
+  <div class="learn-num-list">
+    <div class="learn-item reveal"><span class="l-num">01</span><span class="l-title">Most competitors use a linear, predictable booking flow.</span><p>Every app shown follows a similar step-by-step sequence — Search → Select journey → Choose fare → Payment → Confirmation. <span class="l-outcome">Outcome: users expect a simple, forward-moving flow; non-linear or branching paths increase cognitive load and confusion.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">02</span><span class="l-title">Search tools are almost always prominent and simplified.</span><p>Every competitor highlights key inputs — From, To, Date, Passengers — high in the interface. <span class="l-outcome">Outcome: prioritising the search bar and reducing the number of required fields improves conversion and reduces hesitation.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">03</span><span class="l-title">Fare and ticket selection is the most visually dense step.</span><p>Across multiple competitors, this step has the most screens and variations. <span class="l-outcome">Outcome: fare selection must be highly scannable, clearly comparing price, flexibility and travel time.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">04</span><span class="l-title">Payment and checkout screens differ the most between competitors.</span><p>Some use simple one-screen checkout, others use multi-step processes with add-ons. <span class="l-outcome">Outcome: consistency and transparency in the payment step is critical — unclear fees or too much upselling leads to drop-off.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">05</span><span class="l-title">E-ticket delivery is unified and expected.</span><p>All competitors deliver digital tickets, often on the final screen or via in-app storage. <span class="l-outcome">Outcome: immediate ticket availability and clear confirmation details reduce uncertainty and improve trust.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">06</span><span class="l-title">UI design varies widely, but structure stays consistent.</span><p>Colour palette, typography and branding differ, but layout patterns — tabs, cards, top navigation — remain stable. <span class="l-outcome">Outcome: the visual language can vary, but structural conventions should remain familiar to maintain usability.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">07</span><span class="l-title">Competitors differ most in value-adding features, not core flow.</span><p>Split-ticketing tools, live updates, loyalty integrations, price alerts, seat selection options. <span class="l-outcome">Outcome: differentiation happens in supporting features, not the core booking flow.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">08</span><span class="l-title">Customer experience scoring seems linked to three factors.</span><p>Simplicity of search, clarity of selections, friction in checkout. <span class="l-outcome">Outcome: the smoother the flow and the fewer screens required to finish a purchase, the higher the perceived experience score.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">09</span><span class="l-title">Gaps in some competitors indicate missing features.</span><p>Some columns have blank rows — e.g. payment, confirmation, UI. <span class="l-outcome">Outcome: not all competitors support the same comprehensive flow — an opportunity to offer a more complete, polished journey.</span></p></div>
+    <div class="learn-item reveal"><span class="l-num">10</span><span class="l-title">Flow charts highlight complexity differences clearly.</span><p>Some flows are long and detailed; others are more compact. <span class="l-outcome">Outcome: reducing the number of decision points in the flow can make the user journey feel significantly lighter and faster.</span></p></div>
+  </div>
+</section>
+
+<!-- JOURNEY MAPS -->
+<section class="proj-section" id="journeys">
+  <p class="section-label reveal">Customer Journey Mapping</p>
+  <h2 class="section-heading reveal">Seven journeys, seven mindsets</h2>
+  <p class="section-body reveal">Each journey map traces one persona's steps, actions, feelings and pain points across five stages — pre-awareness, awareness, consideration, booking, and post-booking — surfacing distinct, sometimes conflicting, needs.</p>
+
+  <div class="journey-block reveal">
+    <div class="journey-head"><h3>Jeremy</h3><span>"Efficiency-Seeking Business Owner"</span></div>
+    <p class="journey-meta">37 · Business Owner · In a relationship · London — "Why do people walk? I just want to go somewhere effortlessly."</p>
+    <div class="journey-img-wrap"><img src="tx-journey-jeremy.png" alt="Jeremy's customer journey map"/></div>
+    <p class="journey-learnings"><b>Learnings:</b> Time is more important than price. Any friction — slow load, clutter, long forms — immediately causes abandonment. He wants predictable, fast, reliable routes, prefers "one-tap" and automation, and trusts speed and clarity over brand or design.</p>
+  </div>
+
+  <div class="journey-block reveal">
+    <div class="journey-head"><h3>Angela</h3><span>"Social, Spontaneous Planner"</span></div>
+    <p class="journey-meta">28 · Waitress · Single · London — "Life is short, let's party!"</p>
+    <div class="journey-img-wrap"><img src="tx-journey-angela.png" alt="Angela's customer journey map"/></div>
+    <p class="journey-learnings"><b>Learnings:</b> Sees travel as part of social plans, not a logistical burden. Enjoys browsing options but gets overwhelmed by complexity, needs friendliness, clarity and recognisable deal indicators, and wants reassurance but not too much detail.</p>
+  </div>
+
+  <div class="journey-block reveal">
+    <div class="journey-head"><h3>Sophia</h3><span>"Budget Traveller"</span></div>
+    <p class="journey-meta">21 · Student · Single · Bristol — "I just want to travel effortlessly &amp; budget friendly."</p>
+    <div class="journey-img-wrap"><img src="tx-journey-sophia.png" alt="Sophia's customer journey map"/></div>
+    <p class="journey-learnings"><b>Learnings:</b> Savings are the primary driver, even if the route is slower. Sensitive to hidden fees and misleading "savings" claims, often cross-checks apps to confirm price, and has low trust in apps that hide costs until checkout.</p>
+  </div>
+
+  <div class="journey-block reveal">
+    <div class="journey-head"><h3>David</h3><span>"Convenience-Focused Daily Commuter"</span></div>
+    <p class="journey-meta">28 · Marketing Specialist · Birmingham — "I just want to travel stress free."</p>
+    <div class="journey-img-wrap"><img src="tx-journey-david.png" alt="David's customer journey map"/></div>
+    <p class="journey-learnings"><b>Learnings:</b> Wants repeatability, minimal choices and consistent flows. Sees booking as part of his daily routine and wants automation and shortcuts — real-time accuracy matters more than UX polish, and he's easily frustrated if everyday actions take longer than expected.</p>
+  </div>
+
+  <div class="journey-block reveal">
+    <div class="journey-head"><h3>Helen</h3><span>"Reassurance-Seeking Planner"</span></div>
+    <p class="journey-meta">38 · Mother / Content Creator · Married · Midlands — "It is so important to have everything planned when travelling with kids."</p>
+    <div class="journey-img-wrap"><img src="tx-journey-helen.png" alt="Helen's customer journey map"/></div>
+    <p class="journey-learnings"><b>Learnings:</b> Needs emotional safety and clarity at every step. Gets overwhelmed by too many options or unclear fare rules, double-checks information and fears making mistakes, and prefers "explain like I'm new" type designs.</p>
+  </div>
+
+  <div class="journey-block reveal">
+    <div class="journey-head"><h3>Rodney</h3><span>"Clarity-Focused Pragmatist"</span></div>
+    <p class="journey-meta">45 · Senior Consultant · Divorced · London — "Make it clear, make it fast!"</p>
+    <div class="journey-img-wrap"><img src="tx-journey-rodney.png" alt="Rodney's customer journey map"/></div>
+    <p class="journey-learnings"><b>Learnings:</b> Wants transparency, not speed or savings. Needs simple explanations of complex rail concepts, gets stuck when terminology is confusing, and doesn't tolerate unclear fees or vague route descriptions.</p>
+  </div>
+
+  <div class="journey-block reveal">
+    <div class="journey-head"><h3>Peter</h3><span>"Problem-Sensitive Skeptic"</span></div>
+    <p class="journey-meta">34 · Office Employee · In a relationship · Manchester suburbs — "Why can't they update the schedules and platforms on time?"</p>
+    <div class="journey-img-wrap"><img src="tx-journey-peter.png" alt="Peter's customer journey map"/></div>
+    <p class="journey-learnings"><b>Learnings:</b> Deeply distrustful of digital travel systems due to past negative experiences. Hyper-alert to errors and unclear information — even small issues feel like major deal-breakers — and prefers redundancy: multiple tickets, confirmations, fallback options.</p>
+  </div>
+</section>
+
+<!-- EXISTING PRODUCT FLOWS -->
+<section class="proj-section" id="flows">
+  <p class="section-label reveal">Existing Product Analysis</p>
+  <h2 class="section-heading reveal">Mapping the current user flow</h2>
+  <p class="section-body reveal">Before redesigning, the existing product's end-to-end user flow was mapped in detail — from entry point through search, selection, payment and confirmation — to pinpoint exactly where friction, dead ends and unnecessary steps occur.</p>
+  <div class="flow-grid">
+    <img class="reveal" src="tx-flow-existing-1.png" alt="Existing product user flow diagram 1"/>
+    <img class="reveal" src="tx-flow-existing-2.png" alt="Existing product user flow diagram 2"/>
+    <img class="reveal" src="tx-flow-existing-3.png" alt="Existing product user flow diagram 3"/>
+  </div>
+</section>
+
+<!-- DEFINE PHASE -->
+<section class="proj-section" id="define">
+  <p class="section-label reveal">Define Phase</p>
+  <h2 class="section-heading reveal">Synthesising the insights</h2>
+  <p class="section-body reveal">Affinity diagramming was used to sort and organise the research data — grouping information into connections that proved pivotal for solving user problems, and documenting large amounts of data while highlighting what users need, dislike or experience.</p>
+  <div class="define-grid-2">
+    <img class="reveal" src="tx-define-affinity-1.png" alt="Affinity diagramming board 1"/>
+    <img class="reveal" src="tx-define-affinity-2.png" alt="Affinity diagramming board 2"/>
+  </div>
+</section>
+
+<!-- PERSONAS & ARCHETYPES -->
+<section class="proj-section" id="personas">
+  <p class="section-label reveal">User Profiling</p>
+  <h2 class="section-heading reveal">Personas &amp; Archetypes</h2>
+  <p class="section-body reveal">User personas are fictional, representative profiles that capture the key characteristics of a typical user — helping the team empathise with specific needs and design with a clear picture of who they're designing for: The Problem-Sensitive Pragmatist, The Cautious Validator, The Social Planner, and others drawn directly from the journey mapping work above.</p>
+  <div class="method-img-wrap reveal">
+    <img src="tx-define-personas.png" alt="User personas summary board"/>
+  </div>
+  <p class="section-body reveal" style="margin-top:3rem;">Archetypes strip the persona back to behaviour alone, without demographic detail — allowing the design to focus on behavioural motivation rather than individual identity.</p>
+  <div class="method-img-wrap reveal">
+    <img src="tx-define-archetypes.png" alt="Archetypes board"/>
+  </div>
+  <div class="archetype-list">
+    <div class="archetype-item reveal">
+      <span class="a-name">The Efficiency Seeker</span>
+      <p>Minimal steps, minimal friction.</p>
+    </div>
+    <div class="archetype-item reveal">
+      <span class="a-name">The Social Planner</span>
+      <p>Ability to coordinate with others — friends, family.</p>
+    </div>
+    <div class="archetype-item reveal">
+      <span class="a-name">The Cautious Validator</span>
+      <p>Clear steps and an error-free experience.</p>
+    </div>
+  </div>
+</section>
+
+<!-- JOBS TO BE DONE -->
+<section class="proj-section" id="jtbd">
+  <p class="section-label reveal">Define Phase</p>
+  <h2 class="section-heading reveal">Jobs To Be Done</h2>
+  <p class="section-body reveal">Understanding why users use the app — the exact need, job or task they want satisfied — to uncover motivations that aren't immediately obvious and surface more targeted design solutions.</p>
+  <div class="method-img-wrap reveal">
+    <img src="tx-define-jtbd.png" alt="Jobs to be done board"/>
+  </div>
+  <p class="jtbd-quote reveal">"When reviewing station or pricing information, I want all details to be clear, upfront and transparent, so that I can trust my decision and avoid any unpleasant surprises."</p>
+</section>
+
+<!-- EMPATHY MAPPING -->
+<section class="proj-section" id="empathy">
+  <p class="section-label reveal">Define Phase</p>
+  <h2 class="section-heading reveal">Empathy Mapping</h2>
+  <p class="section-body reveal">A visual technique that breaks down the user experience into four sections — Feel, Think, Say, Do — clarifying what users experience while using the app and guiding subsequent design decisions.</p>
+  <div class="define-grid-2">
+    <img class="reveal" src="tx-define-empathy-1.png" alt="Empathy mapping board 1"/>
+    <img class="reveal" src="tx-define-empathy-2.png" alt="Empathy mapping board 2"/>
+  </div>
+</section>
+
+<!-- PROBLEM STATEMENTS -->
+<section class="proj-section" id="problems">
+  <p class="section-label reveal">Define Phase</p>
+  <h2 class="section-heading reveal">Problem Statements &amp; How Might We</h2>
+  <p class="section-body reveal">Problem statements identify a specific user need or pain point surfaced during research, keeping the design challenge user-focused and actionable. How Might We questions then open the problem back up — exploring diverse ideas without jumping straight to solutions.</p>
+  <div class="method-img-wrap reveal">
+    <img src="tx-define-problem-statements.png" alt="Problem statements board"/>
+  </div>
+  <div class="problem-examples">
+    <div class="problem-card reveal">
+      <p class="p-quote">"Angela needs a clean designed app because she gets easily distracted."</p>
+      <p class="p-hmw"><b>HMW:</b> How might we design a clean, focused interface for Angela so that she can book travel without distractions during her busy workday?</p>
+    </div>
+    <div class="problem-card reveal">
+      <p class="p-quote">"Jeremy needs a simple and fast booking process because his busy work schedule leaves him no time to compare multiple apps for the cheapest train fares."</p>
+      <p class="p-hmw"><b>HMW:</b> How might we help Jeremy book tickets quickly and confidently, so he can find the cheapest fare without spending time comparing multiple apps?</p>
+    </div>
+  </div>
+  <div class="method-img-wrap reveal" style="margin-top:3.5rem;">
+    <img src="tx-define-hmw.png" alt="How Might We board across all personas"/>
+    <p class="method-caption">How Might We — full set, mapped per persona</p>
+  </div>
+  <div class="method-img-wrap reveal">
+    <img src="tx-define-10for10.png" alt="10 for 10 rapid ideation board"/>
+    <p class="method-caption">10 for 10 — one idea a minute, quick thinking over overanalysing</p>
+  </div>
+</section>
+
+<!-- FINAL DESIGN CHALLENGE -->
+<section class="proj-section" id="challenge">
+  <p class="section-label reveal">Final Design Challenge</p>
+  <div class="pullquote reveal">
+    <p>"Design a booking journey that simplifies the process for the needs of every user. Overall, our research findings show that users mainly need an app that is transparent, clear, simple to understand and use — and that makes it easier for busy users or parents to use the app."</p>
+  </div>
+</section>
+
+<!-- IDEATE / WIREFRAMES -->
+<section class="proj-section" id="ideate">
+  <p class="section-label reveal">Ideate &amp; Design Phase</p>
+  <h2 class="section-heading reveal">From sketches to structure</h2>
+  <p class="section-body reveal">With pain points, opportunities and user needs identified, the design phase began with rapid ideation — Crazy 8s to generate a wide spread of directions quickly — before narrowing into low-fidelity wireframes for both desktop and mobile.</p>
+
+  <div class="wireframe-single reveal">
+    <p class="wf-label">Crazy 8s</p>
+    <img src="tx-ideate-crazy8s.png" alt="Crazy 8s rapid sketching exercise"/>
+  </div>
+  <div class="wireframe-single reveal">
+    <p class="wf-label">Ideate Solutions — 10 for 10</p>
+    <img src="tx-ideate-10for10-solutions.png" alt="10 for 10 ideation solutions board"/>
+  </div>
+  <div class="wireframe-single reveal">
+    <p class="wf-label">Desktop Wireframes</p>
+    <img src="tx-wireframes-desktop.png" alt="Desktop low-fidelity wireframes"/>
+  </div>
+  <div class="wireframe-single reveal">
+    <p class="wf-label">Mobile Lo-Fi Wireframes</p>
+    <img src="tx-wireframes-mobile-lofi.png" alt="Mobile low-fidelity wireframes"/>
+  </div>
+  <div class="wireframe-single reveal">
+    <p class="wf-label">Experimentation</p>
+    <img src="tx-experimentation-1.png" alt="Visual experimentation board 1"/>
+  </div>
+  <div class="wireframe-single reveal">
+    <img src="tx-experimentation-2.png" alt="Visual experimentation board 2"/>
+  </div>
+</section>
+
+<!-- STYLE GUIDE -->
+<section class="proj-section" id="style">
+  <p class="section-label reveal">Design System</p>
+  <h2 class="section-heading reveal">Style Guide &amp; UI Elements</h2>
+  <p class="section-body reveal">A consistent colour palette, type scale and component library were established across desktop and mobile to keep the interface coherent, accessible and easy to build from.</p>
+
+  <div class="swatch-row">
+    <div class="swatch reveal">
+      <div class="swatch-color" style="background:#7A9F7E;"></div>
+      <p class="hex">#7A9F7E</p>
+      <p>Primary — muted teal</p>
+    </div>
+    <div class="swatch reveal">
+      <div class="swatch-color" style="background:#FFB752;"></div>
+      <p class="hex">#FFB752</p>
+      <p>Secondary — warm peach</p>
+    </div>
+    <div class="swatch reveal">
+      <div class="swatch-color" style="background:#DF4B07;"></div>
+      <p class="hex">#DF4B07</p>
+      <p>Secondary — warm red</p>
+    </div>
+    <div class="swatch reveal">
+      <div class="swatch-color" style="background:#E0E0E0;"></div>
+      <p class="hex">#E0E0E0</p>
+      <p>Secondary — light grey</p>
+    </div>
+    <div class="swatch reveal">
+      <div class="swatch-color" style="background:#545454;"></div>
+      <p class="hex">#545454</p>
+      <p>Secondary — dark grey</p>
+    </div>
+    <div class="swatch reveal">
+      <div class="swatch-color" style="background:#050301;border:1px solid rgba(245,240,232,.15);"></div>
+      <p class="hex">#050301</p>
+      <p>Secondary — raven black</p>
+    </div>
+    <div class="swatch reveal">
+      <div class="swatch-color" style="background:#FEFEFA;"></div>
+      <p class="hex">#FEFEFA</p>
+      <p>Secondary — baby powder</p>
+    </div>
+  </div>
+  <p class="type-note reveal">Typeface — Poppins, SemiBold 600, scaled from a 14px body copy up to a 32px H1.</p>
+
+  <div class="style-grid" style="margin-top:3.5rem;">
+    <img class="reveal" src="tx-style-desktop-guide.png" alt="Desktop style guide — colour and typography"/>
+    <img class="reveal" src="tx-style-mobile-guide.png" alt="Mobile style guide — colour and typography"/>
+    <img class="reveal" src="tx-style-desktop-ui-elements.png" alt="Desktop UI component library"/>
+    <img class="reveal" src="tx-style-mobile-ui-elements.png" alt="Mobile UI component library"/>
+  </div>
+  <div class="wireframe-single reveal">
+    <p class="wf-label">Auto Layout</p>
+    <img src="tx-style-autolayout.png" alt="Figma auto layout exploration"/>
+  </div>
+</section>
+
+<!-- PROTOTYPES -->
+<section class="proj-section" id="prototypes">
+  <p class="section-label reveal">Prototyping</p>
+  <h2 class="section-heading reveal">Desktop &amp; Mobile Prototypes</h2>
+  <p class="section-body reveal">Interactive, connected prototypes were built in Figma across both desktop and mobile — from landing and search through to seat selection, passenger details and confirmation — to test the full booking flow end to end.</p>
+
+  <div class="proto-block reveal">
+    <p class="wf-label">Desktop Prototype</p>
+    <img src="tx-prototype-desktop-1.png" alt="Desktop prototype flow 1"/>
+  </div>
+  <div class="proto-block reveal">
+    <img src="tx-prototype-desktop-2.png" alt="Desktop prototype flow 2"/>
+  </div>
+  <div class="proto-block reveal">
+    <p class="wf-label">Mobile Prototype — iPhone 14 &amp; 15 Pro</p>
+    <img src="tx-prototype-mobile-1.png" alt="Mobile prototype flow — logo, home and search"/>
+  </div>
+  <div class="proto-block reveal">
+    <img src="tx-prototype-mobile-2.png" alt="Mobile prototype flow — search continued"/>
+  </div>
+  <div class="proto-block reveal">
+    <img src="tx-prototype-mobile-3.png" alt="Mobile prototype flow — seat selection"/>
+  </div>
+  <div class="proto-block reveal">
+    <img src="tx-prototype-mobile-4.png" alt="Mobile prototype flow — seat selection continued"/>
+  </div>
+  <div class="proto-block reveal">
+    <img src="tx-prototype-mobile-5.png" alt="Mobile prototype flow — passenger details and confirmation"/>
+  </div>
+</section>
+
+<!-- REFLECTION -->
+<section class="proj-section" id="reflection">
+  <p class="section-label reveal">Reflection &amp; Next Steps</p>
+  <h2 class="section-heading reveal">What the process revealed</h2>
+  <p class="reflection-quote reveal">Combining primary and secondary research proved essential to uncovering deeper user insight. Interviews, surveys, journey mapping, desk research and social scraping each assisted in building a fuller understanding of user behaviour, needs and pain points than any single method could alone.</p>
+  <p class="reflection-quote reveal">With the data collected and categorised, the pain points, what works well, and the underlying user needs were identified — informing the move into lo-fi wireframes to prepare the app for its final design. These wireframes, and the prototyping that followed, will support further testing to validate whether the redesign is a genuine improvement.</p>
+</section>
+
+<!-- FINAL MOCKUPS (placeholder — to be added) -->
+<section class="proj-section" id="finals">
+  <p class="section-label reveal">Final UI Design</p>
+  <h2 class="section-heading reveal">Final Mockups</h2>
+  <p class="section-body reveal">High-fidelity screens from the finished TravelXpress app, built from the design system above.</p>
+
+  <div class="finals-grid">
+    <figure class="reveal">
+      <img src="tx-final-mockup-home.png" alt="TravelXpress final mockup — Home / Search"/>
+      <figcaption>Home / Search</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img src="tx-final-mockup-results.png" alt="TravelXpress final mockup — Results"/>
+      <figcaption>Results</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img src="tx-final-mockup-journey-details.png" alt="TravelXpress final mockup — Journey Details / Ticket Selection"/>
+      <figcaption>Journey Details</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img src="tx-final-mockup-passenger-payment.png" alt="TravelXpress final mockup — Passenger Details and Payment"/>
+      <figcaption>Passenger Details &amp; Payment</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img src="tx-final-mockup-confirmation.png" alt="TravelXpress final mockup — Booking Confirmation"/>
+      <figcaption>Confirmation</figcaption>
+    </figure>
+  </div>
+
+  <div class="laptop-mockup-wrap reveal">
+    <div class="laptop-screen">
+      <img src="tx-final-mockup-desktop.png" alt="TravelXpress final mockup — desktop home page"/>
+    </div>
+    <div class="laptop-hinge"></div>
+    <div class="laptop-base"></div>
+    <p class="laptop-caption">Desktop — Home Page</p>
+  </div>
+
+  <div class="laptop-mockup-wrap reveal">
+    <div class="laptop-screen">
+      <img src="tx-final-mockup-desktop-results.png" alt="TravelXpress final mockup — desktop results page"/>
+    </div>
+    <div class="laptop-hinge"></div>
+    <div class="laptop-base"></div>
+    <p class="laptop-caption">Desktop — Results</p>
+  </div>
+
+  <div class="laptop-mockup-wrap reveal">
+    <div class="laptop-screen">
+      <img src="tx-final-mockup-desktop-seatselection.png" alt="TravelXpress final mockup — desktop seat selection page"/>
+    </div>
+    <div class="laptop-hinge"></div>
+    <div class="laptop-base"></div>
+    <p class="laptop-caption">Desktop — Seat Selection</p>
+  </div>
+
+  <div class="laptop-mockup-wrap reveal">
+    <div class="laptop-screen">
+      <img src="tx-final-mockup-desktop-checkout.png" alt="TravelXpress final mockup — desktop checkout page"/>
+    </div>
+    <div class="laptop-hinge"></div>
+    <div class="laptop-base"></div>
+    <p class="laptop-caption">Desktop — Passenger Details &amp; Payment</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="footer-nav">
+  <a href="work.html" class="fnav-back">← All Work</a>
+  <p class="fnav-sig">TravelXpress</p>
+</footer>
+
+<script>
+const dot=document.getElementById('cursor-dot');
+const ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+(function lerp(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(lerp);})();
+document.querySelectorAll('a').forEach(a=>{a.addEventListener('mouseenter',()=>ring.classList.add('grow'));a.addEventListener('mouseleave',()=>ring.classList.remove('grow'));});
+window.addEventListener('scroll',()=>{
+  const p=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  document.getElementById('progress-bar').style.width=p+'%';
+});
+gsap.registerPlugin(ScrollTrigger);
+document.querySelectorAll('.reveal').forEach(el=>{
+  gsap.to(el,{opacity:1,y:0,duration:.9,ease:'power3.out',
+    scrollTrigger:{trigger:el,start:'top 90%',toggleActions:'play none none none'}
+  });
+});
+</script>
+
+<script>
+/* ── TRAVELXPRESS TRAIN LOOP ── */
+(()=>{
+  const canvas = document.getElementById('tx-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, dpr = Math.min(devicePixelRatio||1, 2);
+
+  const rsz = () => {
+    W = canvas.parentElement.offsetWidth;
+    H = canvas.parentElement.offsetHeight;
+    canvas.width = W*dpr;
+    canvas.height = H*dpr;
+    canvas.style.width = W+'px';
+    canvas.style.height = H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  };
+  rsz();
+  addEventListener('resize', rsz);
+
+  /* Line-art train — locomotive + 3 carriages, drawn left-to-right
+     (rear to front) in local units, nose pointing right, echoing the
+     logo's sleek angled profile. Whole train spans 0–TRAIN_W. */
+  const CAR_H = 50, CAR_Y = 14, CAR_W = 78, GAP = 16, R = 7;
+  const LOCO_W = 118;
+  const CAR_COUNT = 3;
+  const TRAIN_W = CAR_COUNT*(CAR_W+GAP) + LOCO_W;
+  const TRAIN_H = CAR_Y + CAR_H;
+
+  function carriagePath(x){
+    const p = new Path2D();
+    const w=CAR_W, h=CAR_H, y=CAR_Y;
+    p.moveTo(x+R, y);
+    p.lineTo(x+w-R, y);
+    p.quadraticCurveTo(x+w,y,x+w,y+R);
+    p.lineTo(x+w,y+h-R);
+    p.quadraticCurveTo(x+w,y+h,x+w-R,y+h);
+    p.lineTo(x+R,y+h);
+    p.quadraticCurveTo(x,y+h,x,y+h-R);
+    p.lineTo(x,y+R);
+    p.quadraticCurveTo(x,y,x+R,y);
+    p.closePath();
+    return p;
+  }
+  function locoPath(x){
+    const w=LOCO_W, h=CAR_H, y=CAR_Y;
+    const p = new Path2D();
+    p.moveTo(x+R, y);
+    p.lineTo(x+w*0.66, y);
+    p.quadraticCurveTo(x+w*0.86, y, x+w*0.95, y+h*0.3);
+    p.lineTo(x+w, y+h*0.56);
+    p.lineTo(x+w*0.88, y+h);
+    p.lineTo(x+R, y+h);
+    p.quadraticCurveTo(x,y+h,x,y+h-R);
+    p.lineTo(x,y+R);
+    p.quadraticCurveTo(x,y,x+R,y);
+    p.closePath();
+    return p;
+  }
+  function wheelXs(x,w){
+    return [x+w*0.24, x+w*0.72];
+  }
+
+  /* pre-compute unit x-offsets: carriages first (rear), loco last (front) */
+  const units = [];
+  let cx = 0;
+  for(let i=0;i<CAR_COUNT;i++){
+    units.push({type:'car', x:cx, w:CAR_W});
+    cx += CAR_W + GAP;
+  }
+  units.push({type:'loco', x:cx, w:LOCO_W});
+
+  const SCALE = .78;
+  const SPEED = .55; /* px per frame, canvas-space */
+  const FADE = 200;
+  let trainX = 0;
+  let railY = 0;
+
+  function reset(){
+    trainX = -TRAIN_W*SCALE - 40;
+  }
+  reset();
+
+  function alphaFor(x){
+    const minX = -TRAIN_W*SCALE - 40;
+    const maxX = W + 40;
+    if(x < minX+FADE) return Math.max(0, (x-minX)/FADE);
+    if(x > maxX-FADE) return Math.max(0, (maxX-x)/FADE);
+    return 1;
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    /* sit well above the title/copy block, in the hero's upper region */
+    railY = Math.min(H*0.24, 190);
+
+    /* horizon rail — always faintly present */
+    ctx.beginPath();
+    ctx.moveTo(0, railY+TRAIN_H*SCALE+6);
+    ctx.lineTo(W, railY+TRAIN_H*SCALE+6);
+    ctx.strokeStyle = 'rgba(169,200,166,.08)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    const a = alphaFor(trainX);
+
+    if(a > 0.01){
+      /* motion lines trailing behind the last carriage */
+      ctx.save();
+      ctx.strokeStyle = `rgba(169,200,166,${.16*a})`;
+      ctx.lineWidth = 1.2;
+      for(let i=0;i<3;i++){
+        const ly = railY + (CAR_Y+CAR_H*0.45)*SCALE + i*8;
+        const lx2 = trainX - 6;
+        const lx1 = lx2 - 30 - i*16;
+        ctx.beginPath();
+        ctx.moveTo(lx1, ly);
+        ctx.lineTo(lx2, ly);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(trainX, railY);
+      ctx.scale(SCALE, SCALE);
+
+      units.forEach(u=>{
+        const path = u.type==='car' ? carriagePath(u.x) : locoPath(u.x);
+
+        ctx.shadowColor = `rgba(169,200,166,${.32*a})`;
+        ctx.shadowBlur = 12;
+        ctx.strokeStyle = `rgba(169,200,166,${.62*a})`;
+        ctx.lineWidth = 1.6;
+        ctx.stroke(path);
+        ctx.shadowBlur = 0;
+
+        /* window */
+        ctx.strokeStyle = `rgba(169,200,166,${.4*a})`;
+        ctx.lineWidth = 1.1;
+        if(u.type==='car'){
+          ctx.strokeRect(u.x+14, CAR_Y+11, u.w-28, 18);
+        } else {
+          ctx.strokeRect(u.x+16, CAR_Y+11, u.w*0.42, 18);
+        }
+
+        /* wheels */
+        ctx.fillStyle = `rgba(169,200,166,${.5*a})`;
+        wheelXs(u.x,u.w).forEach(wx=>{
+          ctx.beginPath();
+          ctx.arc(wx, CAR_Y+CAR_H+3, 3.4, 0, Math.PI*2);
+          ctx.fill();
+        });
+      });
+
+      /* couplers between units */
+      ctx.strokeStyle = `rgba(169,200,166,${.4*a})`;
+      ctx.lineWidth = 1.4;
+      for(let i=0;i<units.length-1;i++){
+        const uA = units[i], uB = units[i+1];
+        const y = CAR_Y+CAR_H*0.6;
+        ctx.beginPath();
+        ctx.moveTo(uA.x+uA.w, y);
+        ctx.lineTo(uB.x, y);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    trainX += SPEED;
+    if(trainX > W + 60){
+      reset();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  const mg = document.getElementById('tgrid-hero');
+  for(let i = 0; i < 96; i++){
+    const d = document.createElement('div');
+    mg.appendChild(d);
+  }
+})();
+</script>
+</body>
+</html>
